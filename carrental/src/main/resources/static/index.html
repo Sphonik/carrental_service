@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Rental API Test Client</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        section { margin-bottom: 30px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        h2 { margin-top: 0; }
+        label { display: inline-block; width: 100px; }
+        input, button { margin: 5px 0; }
+        pre { background: #f8f8f8; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+<h1>Car Rental API Test Client</h1>
+
+<section id="auth">
+    <h2>Authentication</h2>
+    <label>Username:</label><input id="username" type="text" value="user1"><br>
+    <label>Password:</label><input id="password" type="password" value="pass1"><br>
+    <button onclick="setCredentials()">Set Credentials</button>
+    <p id="auth-status"></p>
+</section>
+
+<section id="cars">
+    <h2>Fetch Available Cars</nobr></h2>
+    <label>From:</label><input id="cars-start" type="date"><br>
+    <label>To:</label><input id="cars-end" type="date"><br>
+    <label>Currency:</label><input id="cars-currency" type="text" value="USD"><br>
+    <button onclick="fetchCars()">Fetch Cars</button>
+    <pre id="cars-result"></pre>
+</section>
+
+<section id="bookings-list">
+    <h2>List All Bookings</h2>
+    <button onclick="listBookings()">List Bookings</button>
+    <pre id="bookings-result"></pre>
+</section>
+
+<section id="bookings-by-user">
+    <h2>List Bookings by User</h2>
+    <label>User ID:</label><input id="bookings-user-id" type="number" value="1"><br>
+    <button onclick="listBookingsByUser()">Fetch</button>
+    <pre id="bookings-user-result"></pre>
+</section>
+
+<section id="booking-create">
+    <h2>Create Booking</h2>
+    <label>User ID:</label><input id="create-user-id" type="number" value="1"><br>
+    <label>Car ID:</label><input id="create-car-id" type="number" value="3"><br>
+    <label>From:</label><input id="create-start" type="date"><br>
+    <label>To:</label><input id="create-end" type="date"><br>
+    <label>Currency:</label><input id="create-currency" type="text" value="USD"><br>
+    <button onclick="createBooking()">Create</button>
+    <pre id="create-result"></pre>
+</section>
+
+<script>
+    let authHeader = '';
+    function setCredentials() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        authHeader = 'Basic ' + btoa(u + ':' + p);
+        document.getElementById('auth-status').textContent = `Using credentials for ${u}`;
+    }
+
+    async function fetchCars() {
+        const start = document.getElementById('cars-start').value;
+        const end = document.getElementById('cars-end').value;
+        const currency = document.getElementById('cars-currency').value;
+        const url = `/api/v1/cars?from=${start}&to=${end}&currency=${currency}`;
+        const res = await fetch(url, { headers: { 'Authorization': authHeader } });
+        document.getElementById('cars-result').textContent = await res.text();
+    }
+
+    async function listBookings() {
+        const res = await fetch('/api/v1/bookings', { headers: { 'Authorization': authHeader } });
+        document.getElementById('bookings-result').textContent = await res.text();
+    }
+
+    async function listBookingsByUser() {
+        const uid = document.getElementById('bookings-user-id').value;
+        const res = await fetch(`/api/v1/bookings/user/${uid}`, { headers: { 'Authorization': authHeader } });
+        document.getElementById('bookings-user-result').textContent = await res.text();
+    }
+
+    async function createBooking() {
+        const body = JSON.stringify({
+            userId: parseInt(document.getElementById('create-user-id').value),
+            carId: parseInt(document.getElementById('create-car-id').value),
+            startDate: document.getElementById('create-start').value,
+            endDate: document.getElementById('create-end').value,
+            currency: document.getElementById('create-currency').value
+        });
+        const res = await fetch('/api/v1/bookings', {
+            method: 'POST',
+            headers: {
+                'Authorization': authHeader,
+                'Content-Type': 'application/json'
+            },
+            body
+        });
+        document.getElementById('create-result').textContent = await res.text();
+    }
+</script>
+</body>
+</html>

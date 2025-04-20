@@ -2,7 +2,7 @@
 INSERT INTO users (first_name, last_name, username, password, user_role)
 VALUES
     ('John', 'Doe', 'johndoe', 'password123', 'USER'),
-    ('Jane', 'Smith', 'janesmith', 'securepass', 'ADMIN'),
+    ('Jane', 'Smith', 'admin', 'master', 'ADMIN'),
     ('Alice', 'Johnson', 'alicej', 'testpass', 'TESTER');
 
 -- Insert additional 20 dummy cars
