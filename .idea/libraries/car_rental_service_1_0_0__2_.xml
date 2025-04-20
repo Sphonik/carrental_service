@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="car-rental-service-1.0.0 (2)">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/target/car-rental-service-1.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="jar://$PROJECT_DIR$/target/car-rental-service-1.0.0.jar!/" recursive="false" />
+  </library>
+</component>
