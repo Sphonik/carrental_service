@@ -13,7 +13,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       supabaseUrl: '',
-      supabaseAnonKey: ''
+      supabaseAnonKey: '',
+      googleMapsApiKey: 'AIzaSyBjQ70oYqgMlSWvF1eA31arh6-FdxaJloY'
     }
   }
 })

@@ -28,6 +28,12 @@
       </div>
     </div>
 
+    <!-- Cars Map -->
+    <div v-if="filteredCars.length > 0" :key="filteredCars">
+      <GoogleMap
+          :cars = "filteredCars"/>
+    </div>
+
     <!-- Cars Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="car in filteredCars" 
