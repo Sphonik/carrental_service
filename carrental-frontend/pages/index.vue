@@ -1,9 +1,15 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <!-- Menu bar -->
+  <div class="container mx-auto px-4 py-8 w-1/2">
+
+    <!-- Front page welcome -->
+    <div class="text-[45px] mb-12 text-center m-auto">
+      <span>Need a car?</span>
+      <span class="font-bold"> No Problem.</span>
+    </div>
+
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold">Search Cars</h1>
-      <div class="w-52">
+      <div class="">
         <USelect
           v-model="selectedCurrency"
           :items="currencyOptions"
@@ -15,29 +21,35 @@
     </div>
 
     <!-- Search form -->
-    <div class="border border-gray-700 rounded-lg p-6">
+    <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 shadow-md">
       <form @submit.prevent="redirectToCars" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UInput
-            v-model="filters.from"
-            type="date"
-            label="Start Date"
-            required
-            :min="new Date().toISOString().split('T')[0]"
-            class="w-full"
-            size="lg"
-          />
-          <UInput
-            v-model="filters.to"
-            type="date"
-            label="End Date"
-            required
-            :min="filters.from || new Date().toISOString().split('T')[0]"
-            class="w-full"
-            size="lg"
-          />
+          <div>
+            <p class="pb-2">Start Date</p>
+            <UInput
+              v-model="filters.from"
+              type="date"
+              label="Start Date"
+              required
+              :min="new Date().toISOString().split('T')[0]"
+              class="w-full"
+              size="lg"
+            />
+          </div>
+          <div>
+            <p class="pb-2">End Date</p>
+            <UInput
+              v-model="filters.to"
+              type="date"
+              label="End Date"
+              required
+              :min="filters.from || new Date().toISOString().split('T')[0]"
+              class="w-full"
+              size="lg"
+            />
+          </div>
         </div>
-        <div class="flex justify-end pt-4">
+        <div class="flex justify-center pt-4">
           <UButton 
             type="submit" 
             color="primary"

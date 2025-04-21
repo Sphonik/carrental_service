@@ -1,7 +1,7 @@
 <template>
   <h2>{{ props.cars.length }}
     <span v-if="props.cars.length > 1"> cars</span>
-    <span v-else>Car</span>
+    <span v-else>car</span>
     available in {{ Object.keys(locations).length }}
     <span v-if="Object.keys(locations).length > 1">locations</span>
     <span v-else>location</span></h2>
@@ -38,7 +38,7 @@ const mapEl = ref(null)
 const map = ref(null)
 const markers = ref([])
 
-console.log("Grouping and counting car locations...")
+// Group and count cars by location
 const locations = await groupLocationsAndCountCars(props.cars);
 
 // Load Google Maps API
@@ -114,7 +114,7 @@ async function addMarkers(googleMaps, map) {
     console.log("No markers, length: ", markers.value.length)
   }
 
-  console.log("Adjusting center...")
+  // Adjust map bounds based on markers
   map.value.fitBounds(bounds);
 }
 
@@ -133,17 +133,12 @@ onMounted(async () => {
   if (!mapEl.value) return
 
   // Initialize the map
-  console.log("Initializing map...")
   map.value = new googleMaps.Map(mapEl.value, {
     center: props.center,
     zoom: props.zoom,
   })
 
-  // console.log("Grouping and counting car locations...")
-  // const locations = await groupLocationsAndCountCars(props.cars);
-  console.log("Awaiting geocode locations...")
   await geocodeLocations(googleMaps, locations)
-  console.log("Adding markers...")
   await addMarkers(googleMaps, map)
 
 })
