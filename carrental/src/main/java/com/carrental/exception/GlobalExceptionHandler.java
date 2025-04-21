@@ -23,9 +23,27 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND.value(),
                 HttpStatus.NOT_FOUND.getReasonPhrase(),
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    /** 409 – username already exists */
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameConflict(
+            UsernameAlreadyExistsException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
     /** 409 – car already booked */
@@ -39,7 +57,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT.value(),
                 HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
@@ -55,9 +74,27 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 ex.getMessage(),
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
         return ResponseEntity.badRequest().body(body);
+    }
+
+    /** 503 – currency‐service unavailable */
+    @ExceptionHandler(CurrencyConversionException.class)
+    public ResponseEntity<ErrorResponse> handleCurrencyError(
+            CurrencyConversionException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse body = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Currency service unavailable",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
     /** 500 – fallback */
@@ -71,25 +108,10 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "An unexpected error occurred",
-                request.getRequestURI());
+                request.getRequestURI()
+        );
 
-        // log the full stack trace – replace with your logger of choice
         ex.printStackTrace();
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
-    @ExceptionHandler(CurrencyConversionException.class)
-    public ResponseEntity<ErrorResponse> handleCurrencyError(
-            CurrencyConversionException ex, HttpServletRequest req) {
-
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.SERVICE_UNAVAILABLE.value(),
-                "Currency service unavailable",
-                ex.getMessage(),
-                req.getRequestURI());
-
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
-    }
-
 }

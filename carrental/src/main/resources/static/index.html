@@ -8,8 +8,8 @@
         body { font-family: Arial, sans-serif; margin: 20px; }
         section { margin-bottom: 30px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         h2 { margin-top: 0; }
-        label { display: inline-block; width: 100px; }
-        input, button { margin: 5px 0; }
+        label { display: inline-block; width: 120px; vertical-align: top; }
+        input, select, button { margin: 4px 0; }
         pre { background: #f8f8f8; padding: 10px; overflow: auto; }
     </style>
 </head>
@@ -25,7 +25,7 @@
 </section>
 
 <section id="cars">
-    <h2>Fetch Available Cars</nobr></h2>
+    <h2>Fetch Available Cars</h2>
     <label>From:</label><input id="cars-start" type="date"><br>
     <label>To:</label><input id="cars-end" type="date"><br>
     <label>Currency:</label><input id="cars-currency" type="text" value="USD"><br>
@@ -55,6 +55,21 @@
     <label>Currency:</label><input id="create-currency" type="text" value="USD"><br>
     <button onclick="createBooking()">Create</button>
     <pre id="create-result"></pre>
+</section>
+
+<section id="user-create">
+    <h2>Create User</h2>
+    <label>First Name:</label><input id="user-first" type="text" placeholder="Max"><br>
+    <label>Last Name:</label><input id="user-last" type="text" placeholder="Mustermann"><br>
+    <label>Username:</label><input id="user-username" type="text" placeholder="maxm"><br>
+    <label>Password:</label><input id="user-password" type="password" placeholder="secret"><br>
+    <label>Role:</label>
+    <select id="user-role">
+        <option value="USER">USER</option>
+        <option value="ADMIN">ADMIN</option>
+    </select><br>
+    <button onclick="createUser()">Create User</button>
+    <pre id="user-create-result"></pre>
 </section>
 
 <script>
@@ -103,6 +118,25 @@
             body
         });
         document.getElementById('create-result').textContent = await res.text();
+    }
+
+    async function createUser() {
+        const body = JSON.stringify({
+            firstName: document.getElementById('user-first').value,
+            lastName:  document.getElementById('user-last').value,
+            username:  document.getElementById('user-username').value,
+            password:  document.getElementById('user-password').value,
+            userRole:  document.getElementById('user-role').value
+        });
+        const res = await fetch('/api/v1/users', {
+            method: 'POST',
+            headers: {
+                'Authorization': authHeader,
+                'Content-Type': 'application/json'
+            },
+            body
+        });
+        document.getElementById('user-create-result').textContent = await res.text();
     }
 </script>
 </body>

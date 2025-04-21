@@ -1,4 +1,8 @@
+// src/main/java/com/carrental/controller/UserController.java
 package com.carrental.controller;
+
+import com.carrental.dto.CreateUserRequestDto;
+import com.carrental.dto.UpdateUserRequestDto;
 import com.carrental.dto.UserDto;
 import com.carrental.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -6,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -17,6 +20,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
     @GetMapping
     public List<UserDto> getAllUsers() {
         return userService.getAllUserDtos();
@@ -29,24 +33,21 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create(@RequestBody UserDto dto) {
-        return userService.createUser(dto);
+    public UserDto create(@RequestBody CreateUserRequestDto req) {
+        return userService.createUser(req);
     }
 
     @PutMapping("/{id}")
-    public UserDto update(@PathVariable Integer id, @RequestBody UserDto dto) {
-        return userService.updateUser(id, dto);
+    public UserDto update(
+            @PathVariable Integer id,
+            @RequestBody UpdateUserRequestDto req
+    ) {
+        return userService.updateUser(id, req);
     }
 
-    // Endpoint to delete a user by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-
 }
-
-
-
-
