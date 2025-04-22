@@ -17,23 +17,28 @@
           <!-- Main Menu -->
           <nav :class="['lg:flex', menuOpen ? 'block' : 'hidden']" class="absolute lg:static top-16 left-0 w-full lg:w-auto bg-blue-500 lg:bg-transparent z-50">
             <ul class="flex flex-col lg:flex-row lg:space-x-4">
-              <li><a href="/" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Home</a></li>
-              <li><a href="/cars" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Vehicles</a></li>
-              <li><a href="/contact" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Contact</a></li>
+              <li><NuxtLink to="/" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Home</NuxtLink></li>
+              <li><NuxtLink to="/cars" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Vehicles</NuxtLink></li>
+              <li><NuxtLink to="/contact" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Contact</NuxtLink></li>
               <li>
-                <a 
-                  v-if="user" 
-                  href="/account" 
+                <NuxtLink 
+                  v-if="authStore.user" 
+                  to="/account" 
                   class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline"
                 >
                   Account
-                </a>
-                <a 
+                </NuxtLink>
+                <NuxtLink 
                   v-else 
-                  href="/login" 
+                  to="/login" 
                   class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline"
                 >
                   Login
+                </NuxtLink>
+              </li>
+              <li v-if="authStore.user">
+                <a href="#" @click.prevent="handleLogout" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">
+                  Logout
                 </a>
               </li>
             </ul>
@@ -57,17 +62,23 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useAuth } from '~/composables/useAuth';
+import { useAuthStore } from '~/stores/auth';
+import { useRouter } from 'vue-router';
 
-const appConfig = useAppConfig()
-const { getUser } = useAuth();
-const user = ref(null);
+const appConfig = useAppConfig();
+const { logout } = useAuth();
+const authStore = useAuthStore();
+const router = useRouter();
 const menuOpen = ref(false);
 
+const handleLogout = () => {
+  logout();
+  router.push('/login');
+};
+
 onMounted(async () => {
-  // Nur auf Client-Seite ausführen
-  if (process.client) {
-    user.value = await getUser();
-  }
+  // Auth-Status wird direkt aus dem Store gelesen, nicht mehr aus getUser()
+  // Wir brauchen kein separates ref mehr
 });
 </script>
 

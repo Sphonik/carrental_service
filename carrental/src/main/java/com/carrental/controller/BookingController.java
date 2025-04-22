@@ -2,7 +2,9 @@ package com.carrental.controller;
 
 import com.carrental.dto.BookingDto;
 import com.carrental.dto.BookingRequestDto;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.carrental.service.BookingService;
 
@@ -47,5 +49,14 @@ public class BookingController {
     public BookingDto create(@RequestBody BookingRequestDto req) {
         return bookingService.createBooking(req);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBookingById(@PathVariable Integer id) {
+        bookingService.deleteBookingById(id);
+        return ResponseEntity.noContent().build(); // Antwort: 204 No Content
+    }
+
+
+
 }
 

@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 const { login } = useAuth()
 const router = useRouter()
 
-const email = ref('')
+const username = ref('') // Changed from email to username
 const password = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
@@ -16,7 +16,7 @@ const loginUser = async () => {
   errorMessage.value = ''
 
   try {
-    await login(email.value, password.value)
+    await login(username.value, password.value) // Changed from email to username
     router.push('/') // Redirect after successful login
   } catch (err) {
     errorMessage.value = err.message || 'Login failed'
@@ -24,6 +24,10 @@ const loginUser = async () => {
     loading.value = false
   }
 }
+
+definePageMeta({
+  middleware: ['guest']
+})
 </script>
 
 <template>
@@ -42,11 +46,11 @@ const loginUser = async () => {
         <form @submit.prevent="loginUser" class="space-y-6">
           <div>
             <UInput
-              v-model="email"
-              type="email"
-              label="Email"
+              v-model="username"
+              type="text"
+              label="Username"
               required
-              placeholder="name@example.com"
+              placeholder="Enter username"
               class="block w-full"
               size="lg"
             />

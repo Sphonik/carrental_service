@@ -46,5 +46,10 @@ public class CarController {
         return carService.getAvailableBetween(from, to, currency);
     }
 
+    @GetMapping("/{id}")
+    public CarDto getCarById(@PathVariable Long id) {
+        return carService.getCarById(id);
+    }
+
 
 }

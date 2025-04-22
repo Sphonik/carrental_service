@@ -3,6 +3,7 @@ import com.carrental.dto.AvailableCarDto;
 import com.carrental.exception.InvalidBookingRequestException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import com.carrental.dto.CarDto;
 import com.carrental.exception.CarNotAvailableException;
@@ -84,10 +85,35 @@ public class CarService {
                 car.getMake(),
                 car.getModel(),
                 car.getPricePerDay(),
-                priceConverted,
-                currency.toUpperCase()
+                priceConverted.setScale(2, RoundingMode.HALF_UP),
+                currency.toUpperCase(),
+                car.getYear(),
+                car.getColor(),
+                car.getFuelType().toString(),
+                car.isAutomatic(),
+                car.getPickupLocation()
         );
     }
+    // Neue Methode: Auto nach ID abrufen
+    public CarDto getCarById(Long id) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Car with ID " + id + " does not exist"));
+
+        // Mappt die Car-Entity auf ein CarDto
+        return new CarDto(
+                car.getId(),
+                car.getMake(),
+                car.getModel(),
+                car.getYear(),
+                car.getColor(),
+                car.getFuelType().toString(),
+                car.isAutomatic(),
+                car.getPricePerDay(),
+                car.getPickupLocation(),
+                car.isAvailable()
+        );
+    }
+
 
 }
 

@@ -1,10 +1,12 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useApi } from './useApi'
+import { useAuthStore } from '~/stores/auth'
 
 interface User {
   id: number
   email: string
   role: string
+  username: string
 }
 
 // Cookie Helper Funktionen
@@ -23,17 +25,28 @@ const deleteCookie = (name: string) => {
 }
 
 export function useAuth() {
-  const { endpoints } = useApi()
-  const user = ref<User | null>(null)
+  const api = useApi()
+  const authStore = useAuthStore()
 
-  const register = async (email: string, password: string, role: string) => {
+  const getAuthHeader = (username: string, password: string) => {
+    return { 'Authorization': `Basic ${btoa(`${username}:${password}`)}` }
+  }
+
+  const register = async (firstName: string, lastName: string, username: string, password: string) => {
     try {
-      const response = await fetch(endpoints.auth.register(), {
+      const response = await fetch(`${api.getBaseUrl()}/users`, {
         method: 'POST',
         headers: {
+          ...getAuthHeader('admin', 'master'),
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password, role })
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+          username: username,
+          password: password,
+          userRole: 'USER'
+        })
       })
 
       if (!response.ok) {
@@ -48,82 +61,82 @@ export function useAuth() {
     }
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      if (!email || !password) {
-        throw new Error('Email and password are required')
+      if (!username || !password) {
+        throw new Error('Username and password are required')
       }
 
-      const response = await fetch(endpoints.auth.login(), {
+      const response = await fetch(`${api.getBaseUrl()}/users/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${btoa('admin:master')}`
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({
+          username,
+          password
+        })
       })
 
-      if (!response.ok) {
-        throw new Error('Login failed')
+      if (response.status === 200) {
+        const data = await response.json()
+        // userId aus Response speichern
+        authStore.setAuth(username, password, data.userId)
+        return { user: authStore.user, ...data }
       }
 
-      const data = await response.json()
-      setCookie('auth_token', data.token) // Cookie statt localStorage
-      user.value = data.user
-      return { data }
+      if (response.status === 401) {
+        throw new Error('Invalid credentials')
+      }
+
+      throw new Error('Login failed')
     } catch (error) {
       console.error('Login error:', error)
       throw error
     }
   }
 
+  const logout = () => {
+    authStore.clearAuth()
+  }
+
   const getUser = async () => {
     try {
-      if (!process.client) return null
-      
-      const token = getCookie('auth_token') // Cookie statt localStorage
-      if (!token) return null
+      if (!process.client || !authStore.credentials || !authStore.user?.userId) return null
 
-      const response = await fetch(endpoints.auth.me(), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      // Nutze den vorhandenen Endpunkt /users/{id}
+      const response = await fetch(`${api.getBaseUrl()}/users/${authStore.user.userId}`, {
+        headers: { 'Authorization': `Basic ${authStore.credentials}` }
       })
 
       if (!response.ok) {
-        throw new Error('User not found')
+        console.error('User validation failed')
+        logout()
+        return null
       }
 
-      const data = await response.json()
-      user.value = data
-      return user.value
+      // Optional: User-Daten aktualisieren
+      const userData = await response.json()
+      if (userData) {
+        // Bestehende userId erhalten und mit neuen Daten aktualisieren
+        authStore.updateUser(userData)
+      }
+
+      return authStore.user
     } catch (error) {
       console.error('Error loading user:', error)
+      logout()
       return null
     }
   }
 
-  const logout = async () => {
-    try {
-      const token = getCookie('auth_token') // Cookie statt localStorage
-      await fetch(endpoints.auth.logout(), {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      deleteCookie('auth_token') // Cookie statt localStorage
-      user.value = null
-    } catch (error) {
-      console.error('Logout error:', error)
-      throw error
-    }
-  }
-
   return {
-    user,
+    user: computed(() => authStore.user),
     register,
     login,
     getUser,
-    logout
+    logout,
+    getAuthHeader
   }
 }

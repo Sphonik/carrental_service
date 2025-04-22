@@ -129,9 +129,13 @@ import { useApi } from '~/composables/useApi'
 import CarBookingModal from '~/components/CarBookingModal.vue'
 import { useCurrency } from '~/composables/useCurrency'
 
+definePageMeta({
+  middleware: ['auth']
+})
+
 const router = useRouter()
 const route = useRoute()
-const { endpoints } = useApi()
+const { endpoints, getAuthHeaders } = useApi()
 const carsLoaded = ref(false)
 
 const cars = ref([])
@@ -224,7 +228,13 @@ const fetchCars = async () => {
         from: filters.value.startDate || '',
         to: filters.value.endDate || '',
         currency: filters.value.currency || 'USD'
-      })
+      }),
+      {
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        }
+      }
     )
     if (!response.ok) throw new Error('Failed to load cars')
     const data = await response.json()

@@ -97,11 +97,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCurrency } from '~/composables/useCurrency'
+import { useApi } from '~/composables/useApi' 
+import { useAuthStore } from '~/stores/auth' // Auth-Store importieren
 
 const route = useRoute()
+const { endpoints, getAuthHeaders } = useApi() // API Composable verwenden
+const authStore = useAuthStore() // Auth-Store verwenden
+
 const props = defineProps({
   isOpen: Boolean,
   car: Object,
@@ -156,8 +161,27 @@ const handleBooking = async () => {
       throw new Error('End date must be after start date')
     }
 
-    // Simulate API call
-    console.log('Booking successful:', booking.value)
+    // Echter API-Aufruf mit Auth-Headers
+    const response = await fetch(endpoints.cars.book(), {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        carId: props.car.id,
+        userId: authStore.user.userId, 
+        startDate: booking.value.startDate,
+        endDate: booking.value.endDate,
+        currency: props.car.currency || 'USD'
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.text()
+      throw new Error(errorData || 'Booking failed')
+    }
+
     emit('booking-success')
     closeModal()
   } catch (err) {

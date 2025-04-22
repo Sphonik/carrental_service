@@ -1,13 +1,12 @@
 // src/main/java/com/carrental/controller/UserController.java
 package com.carrental.controller;
 
-import com.carrental.dto.CreateUserRequestDto;
-import com.carrental.dto.UpdateUserRequestDto;
-import com.carrental.dto.UserDto;
+import com.carrental.dto.*;
 import com.carrental.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -50,4 +49,19 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/login")
+    public LoginResponseDto login(@RequestBody LoginRequestDto loginRequest) {
+        try {
+            // Verwendet den Benutzernamen und das Passwort für die Authentifizierung
+            Integer userId = userService.login(loginRequest.username(), loginRequest.password());
+
+            // Rückgabe der userId bei Erfolg
+            return new LoginResponseDto(userId);
+        } catch (IllegalArgumentException e) {
+            // Gibt 401 (Unauthorized) zurück, wenn die Anmeldedaten ungültig sind
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+    }
+
 }

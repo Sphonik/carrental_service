@@ -8,5 +8,10 @@ public record AvailableCarDto(
         String model,
         BigDecimal pricePerDayUsd,
         BigDecimal pricePerDay,
-        String currency
+        String currency,
+        Integer year,
+        String color,
+        String fuelType,
+        boolean automatic,
+        String pickupLocation
 ) {}

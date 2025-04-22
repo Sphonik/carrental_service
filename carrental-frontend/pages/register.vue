@@ -7,7 +7,9 @@ import { useRouter } from 'vue-router'
 const { register } = useAuth()
 const router = useRouter()
 
-const email = ref('')
+const firstName = ref('')
+const lastName = ref('')
+const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
@@ -17,7 +19,7 @@ const handleRegister = async () => {
   errorMessage.value = ''
 
   try {
-    await register(email.value, password.value)
+    await register(firstName.value, lastName.value, username.value, password.value)
     router.push('/login')
   } catch (err) {
     errorMessage.value = err.message || 'Registration failed'
@@ -25,6 +27,10 @@ const handleRegister = async () => {
     loading.value = false
   }
 }
+
+definePageMeta({
+  middleware: ['guest']
+})
 </script>
 
 <template>
@@ -43,11 +49,35 @@ const handleRegister = async () => {
         <form @submit.prevent="handleRegister" class="space-y-6">
           <div>
             <UInput
-              v-model="email"
-              type="email"
-              label="Email"
+              v-model="firstName"
+              type="text"
+              label="First Name"
               required
-              placeholder="name@example.com"
+              placeholder="John"
+              class="block w-full"
+              size="lg"
+            />
+          </div>
+
+          <div>
+            <UInput
+              v-model="lastName"
+              type="text"
+              label="Last Name"
+              required
+              placeholder="Doe"
+              class="block w-full"
+              size="lg"
+            />
+          </div>
+
+          <div>
+            <UInput
+              v-model="username"
+              type="text"
+              label="Username"
+              required
+              placeholder="johndoe"
               class="block w-full"
               size="lg"
             />

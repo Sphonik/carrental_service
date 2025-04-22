@@ -79,4 +79,18 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+    public Integer login(String username, String password) {
+        // Benutzer mit dem gegebenen Benutzernamen suchen
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Passwort überprüfen
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        // Erfolg: Rückgabe der Benutzer-ID
+        return user.getId();
+    }
+
 }

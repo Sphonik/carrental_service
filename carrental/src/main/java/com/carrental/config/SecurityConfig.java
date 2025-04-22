@@ -66,6 +66,8 @@ public class SecurityConfig {
                         // 1) Erlaube das Anlegen neuer User
                         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                         // 2) Deine bisherigen Freigaben
+                        .requestMatchers(HttpMethod.DELETE, "/bookings/**").authenticated() // Nur für Admins
+
                         .requestMatchers("/static/**", "/", "/index.html").permitAll()
                         // 3) alles andere bleibt geschützt
                         .anyRequest().authenticated()

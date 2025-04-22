@@ -32,12 +32,13 @@ public class BookingService {
     private final UserRepository         userRepo;
     private final CurrencyConverterClient currencyClient;
 
+
     /* ----------  expliziter Konstruktor (kein Lombok) ---------- */
     public BookingService(BookingRepository bookingRepo,
                           BookingMapper mapper,
                           CarRepository carRepo,
                           UserRepository userRepo,
-                          CurrencyConverterClient currencyClient) {
+                          CurrencyConverterClient currencyClient, BookingRepository bookingRepository) {
         this.bookingRepo   = bookingRepo;
         this.mapper        = mapper;
         this.carRepo       = carRepo;
@@ -108,4 +109,16 @@ public class BookingService {
 
         return mapper.toDto(saved);
     }
+
+    @Transactional
+    public void deleteBookingById(Integer id) {
+        // Prüfen, ob die Buchung existiert
+        if (!bookingRepo.existsById(id)) {
+            throw new BookingNotFoundException(id);
+        }
+
+        // Löschen der Buchung
+        bookingRepo.deleteById(id);
+    }
+
 }
