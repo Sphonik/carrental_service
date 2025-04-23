@@ -77,7 +77,7 @@ const getCarForBooking = (booking) => {
 // Cancel a booking
 const cancelBooking = async (bookingId) => {
   try {
-    if (!confirm('Möchten Sie diese Buchung wirklich stornieren?')) {
+    if (!confirm('Click OK if you are sure you want to cancel this booking')) {
       return
     }
     
@@ -91,7 +91,7 @@ const cancelBooking = async (bookingId) => {
     if (!response.ok) throw new Error('Failed to cancel booking')
     
     // Erfolgsmeldung
-    alert('Buchung erfolgreich storniert')
+    alert('This booking has been cancelled')
     
     // Buchungen neu laden
     await fetchBookings()
@@ -133,20 +133,22 @@ onMounted(() => {
 <template>
   <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Account</h1>
+      <h1 class="text-3xl font-bold">My Account</h1>
       <UButton
-        color="red"
+        color="error"
         variant="soft"
         @click="handleLogout"
         size="lg"
+        icon="material-symbols:logout"
+        class="cursor-pointer"
       >
         Logout
       </UButton>
     </div>
 
     <!-- User Info -->
-    <div class="border border-gray-700 rounded-lg p-6 mb-8">
-      <h2 class="text-2xl font-semibold mb-4">Profile Information</h2>
+    <div class="border border border-gray-100 dark:border-gray-600 shadow-md rounded-lg p-6 mb-8">
+      <h2 class="text-2xl font-semibold mb-4">Hello, {{ authStore.user?.firstName }}</h2>
       <div class="space-y-2">
         <p><span class="text-gray-400">Username:</span> {{ authStore.user?.username }}</p>
         <p><span class="text-gray-400">User ID:</span> {{ authStore.user?.userId }}</p>
@@ -154,7 +156,7 @@ onMounted(() => {
     </div>
 
     <!-- Bookings -->
-    <div class="border border-gray-700 rounded-lg p-6">
+    <div class="border border border-gray-100 dark:border-gray-600 shadow-md rounded-lg p-6">
       <h2 class="text-2xl font-semibold mb-4">Your Bookings</h2>
 
       <div v-if="loading" class="text-center py-8">
@@ -180,14 +182,14 @@ onMounted(() => {
         <div 
           v-for="booking in bookings" 
           :key="booking.id"
-          class="border border-gray-700 rounded-lg p-4"
+          class="rounded-lg p-4 bg-gray-100 dark:bg-zinc-800 shadow"
         >
           <div class="flex justify-between items-start">
             <div>
               <!-- Car Informationen anzeigen, wenn verfügbar -->
               <template v-if="getCarForBooking(booking)">
                 <h3 class="text-xl font-semibold">
-                  {{ getCarForBooking(booking).make }} {{ getCarForBooking(booking).model }}
+                  {{ getCarForBooking(booking).year }} {{ getCarForBooking(booking).make }} {{ getCarForBooking(booking).model }}
                 </h3>
               </template>
               <template v-else>
@@ -195,35 +197,40 @@ onMounted(() => {
                   Car ID: {{ booking.carId }}
                 </h3>
               </template>
-              <p class="text-gray-400">
-                {{ formatDate(booking.startDate) }} - {{ formatDate(booking.endDate) }}
+              <p class="text-gray-500 dark:text-gray-400">
+                From {{ formatDate(booking.startDate) }} to {{ formatDate(booking.endDate) }}
               </p>
             </div>
-            <span class="text-blue-400 font-bold">
+              <span class="text-green-600 dark:text-green-400 font-bold text-right mb-4">
               {{ booking.currency }} {{ booking.totalCost }}
             </span>
           </div>
           
           <!-- Car Details wenn vorhanden -->
-          <div v-if="getCarForBooking(booking)" class="mt-2 bg-gray-800/50 p-2 rounded-md">
-            <p class="text-sm text-gray-300">
-              <span class="text-gray-400">Fuel Type:</span> {{ getCarForBooking(booking).fuelType  }} |
-              <span class="text-gray-400">Transmission:</span> {{ getCarForBooking(booking).fuel ? 'Automatic' : 'Manual' }} | 
-              <span class="text-gray-400">Pickup Location:</span> {{ getCarForBooking(booking).pickupLocation  }}
+          <div v-if="getCarForBooking(booking)" class="mt-2 rounded-md">
+            <p class="text-sm text-gray-600 dark:text-gray-200">
+              <span class="text-gray-500 dark:text-gray-400">Fuel Type:</span> {{ getCarForBooking(booking).fuelType.charAt(0) + getCarForBooking(booking).fuelType.slice(1).toLowerCase() }} |
+              <span class="text-gray-500 dark:text-gray-400">Transmission:</span> {{ getCarForBooking(booking).fuel ? 'Automatic' : 'Manual' }} |
+              <span class="text-gray-500 dark:text-gray-400">Pickup Location:</span> {{ getCarForBooking(booking).pickupLocation  }}
             </p>
           </div>
-          
-          <!-- Cancel Button -->
-          <div class="mt-4 flex justify-end">
-            <UButton 
-              color="red"
+          <UButton
+              variant="soft"
+              color="error"
               size="sm"
               @click="cancelBooking(booking.id)"
               v-if="new Date(booking.startDate) > new Date()"
-            >
-              Cancel Booking
-            </UButton>
-          </div>
+              icon="material-symbols:cancel"
+              class="cursor-pointer mt-4"
+          >
+            Cancel Booking
+          </UButton>
+          <UBadge
+              variant="soft"
+              class="mt-4"
+              v-if="new Date(booking.startDate) <= new Date() && new Date(booking.endDate) >= new Date()">
+            Happening Now
+          </UBadge>
         </div>
       </div>
     </div>

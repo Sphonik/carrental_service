@@ -8,6 +8,7 @@
           color="gray"
           variant="ghost"
           @click="closeModal"
+          class="cursor-pointer"
         />
       </div>
 
@@ -79,6 +80,7 @@
             variant="soft" 
             @click="closeModal"
             size="lg"
+            class="cursor-pointer"
           >
             Cancel
           </UButton>
@@ -87,6 +89,7 @@
             color="primary"
             :loading="isLoading"
             size="lg"
+            class="cursor-pointer"
           >
             {{ isLoading ? 'Booking...' : 'Confirm Booking' }}
           </UButton>
@@ -184,6 +187,7 @@ const handleBooking = async () => {
 
     emit('booking-success')
     closeModal()
+    await navigateTo({path: '/account'})
   } catch (err) {
     error.value = err.message
   } finally {

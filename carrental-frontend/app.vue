@@ -17,27 +17,26 @@
           <!-- Main Menu -->
           <nav :class="['lg:flex', menuOpen ? 'block' : 'hidden']" class="absolute lg:static top-16 left-0 w-full lg:w-auto bg-blue-500 lg:bg-transparent z-50">
             <ul class="flex flex-col lg:flex-row lg:space-x-4">
-              <li><NuxtLink to="/" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Home</NuxtLink></li>
-              <li><NuxtLink to="/cars" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Vehicles</NuxtLink></li>
-              <li><NuxtLink to="/contact" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Contact</NuxtLink></li>
+              <li><NuxtLink to="/cars" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline">Vehicles</NuxtLink></li>
+              <li><NuxtLink to="/contact" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline">Contact</NuxtLink></li>
               <li>
                 <NuxtLink 
                   v-if="authStore.user" 
                   to="/account" 
-                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline"
+                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline"
                 >
                   Account
                 </NuxtLink>
-                <NuxtLink 
-                  v-else 
+                <NuxtLink
+                  v-else
                   to="/login" 
-                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline"
+                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline"
                 >
                   Login
                 </NuxtLink>
               </li>
               <li v-if="authStore.user">
-                <a href="#" @click.prevent="handleLogout" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">
+                <a href="#" @click.prevent="handleLogout" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline">
                   Logout
                 </a>
               </li>

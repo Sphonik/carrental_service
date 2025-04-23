@@ -1,10 +1,10 @@
 <template>
-  <div class="container mx-auto px-4 py-8 w-1/2">
+  <div class="container mx-auto px-4 py-12 lg:w-1/2">
 
     <!-- Front page welcome -->
-    <div class="text-[45px] mb-12 text-center m-auto">
+    <div class="text-[45px] mb-18 text-center m-auto">
       <span>Need a car?</span>
-      <span class="font-bold"> No Problem.</span>
+      <span class="font-bold"> No problem.</span>
     </div>
 
     <div class="flex justify-between items-center mb-8">
@@ -54,6 +54,7 @@
             type="submit" 
             color="primary"
             size="lg"
+            class="cursor-pointer"
           >
             Search Available Cars
           </UButton>

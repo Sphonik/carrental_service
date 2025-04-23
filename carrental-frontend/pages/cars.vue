@@ -12,8 +12,9 @@
               type="date"
               label="Start Date"
               required
-              @change="refreshDateQuery()"
+              @change="fetchCars()"
               :min="new Date().toISOString().split('T')[0]"
+              :max="filters.endDate"
               class="w-full"
               size="lg"
           />
@@ -25,7 +26,7 @@
               type="date"
               label="End Date"
               required
-              @change="refreshDateQuery()"
+              @change="fetchCars()"
               :min="filters.startDate || new Date().toISOString().split('T')[0]"
               class="w-full"
               size="lg"
@@ -62,13 +63,35 @@
           variant="outline"
           @click="resetFilters"
           size="lg"
+          class="cursor-pointer mr-2"
       >
         Reset Filters
       </UButton>
+      <UButton
+          variant="soft"
+          to="/"
+          size="lg"
+          class="cursor-pointer"
+      >
+        New Search
+      </UButton>
     </div>
 
-    <div v-if="!carsLoaded"><p class="italic">Searching for available cars...</p></div>
-    <div v-if="carsLoaded && filteredCars.length == 0"><p class="italic">No available cars found</p></div>
+    <div v-if="!carsLoaded && (filters.startDate && filters.endDate)" class="flex items-center">
+      <div class="inline-block h-4 w-4 animate-spin rounded-full border-3 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] text-blue-500 dark:text-white mr-3"
+           role="status"></div>
+      <p class="italic text-gray-500 dark:text-gray-300">Searching for available cars...</p>
+    </div>
+    <UAlert v-if="carsLoaded && filteredCars.length == 0 && (filters.startDate && filters.endDate)"
+            icon="material-symbols:search"
+            title="No available cars found"
+            description="Adjust filters or search different dates"
+            variant="subtle"</UAlert>
+    <UAlert v-if="!filters.startDate || !filters.endDate"
+            icon="material-symbols:search"
+            title="Search for cars"
+            description="Enter dates above to search available cars"
+            variant="subtle"</UAlert>
 
     <!-- Cars Map -->
     <div v-if="carsLoaded && filteredCars.length > 0" :key="filteredCars">
@@ -99,6 +122,7 @@
               v-if="filters.startDate && filters.endDate"
             @click="openBookingModal(car)"
             size="lg"
+              class="cursor-pointer"
           >
             Book Now
           </UButton>
@@ -193,31 +217,16 @@ const filteredCars = computed(() => {
   })
 })
 
-// Reset filters
+// Reset filters (keeping dates)
 const resetFilters = () => {
   filters.value = {
     location: '',
     maxPrice: null,
-    startDate: null,
-    endDate: null,
+    startDate: filters.value.startDate,
+    endDate: filters.value.endDate,
     currency: route.query.currency
   }
-  router.push({ query: {
-    currency: filters.value.currency // Keep originally selected currency from main page
-    } })
-}
-
-const refreshDateQuery = () => {
-  if (filters.value.startDate && filters.value.endDate) {
-    router.push({
-      path: '/cars',
-      query: {
-        from: filters.value.startDate,
-        to: filters.value.endDate,
-        currency: route.query.currency
-      }
-    })
-  }
+  fetchCars()
 }
 
 // API functions
