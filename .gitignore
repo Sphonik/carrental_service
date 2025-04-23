@@ -1,0 +1,51 @@
+# IDE - IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# Environment variables
+.env
+*/.env
+
+# Dependency directories
+node_modules/
+dist/
+build/
+target/
+
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Operating System
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Package files
+*.zip
+*.tar.gz
+*.rar
+
+# Local configuration
+application-local.properties
+application-local.yml
+/target/
