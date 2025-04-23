@@ -34,7 +34,7 @@ public class Booking {
     @Column(nullable = false, length = 3)
     private String currency;
 
-    /* --------------  ctor / getter / setter -------------- */
+
 
     public Booking() {}
 

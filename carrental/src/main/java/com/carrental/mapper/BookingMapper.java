@@ -22,6 +22,6 @@ public interface BookingMapper {
     @Mapping(target = "bookedBy", ignore = true)
     @Mapping(target = "carRented", ignore = true)
     @Mapping(target = "totalCost", ignore = true)
-    @Mapping(target = "id", ignore = true) // ← diese Zeile behebt den letzten Fehler
+    @Mapping(target = "id", ignore = true)
     Booking toEntity(BookingRequestDto dto);
 }

@@ -74,9 +74,7 @@ public class CurrencyConverterClient {
         }
     }
 
-    /* ------------------------------------------------------------- */
-    /* private Helper                                                */
-    /* ------------------------------------------------------------- */
+
 
     private SOAPMessage buildRequest(BigDecimal amountUsd, String toCurrency) throws SOAPException {
         SOAPMessage message = MessageFactory.newInstance().createMessage();
