@@ -5,7 +5,7 @@ WORKDIR /app
 # Bağımlılıkları yükle
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
-RUN npm install ipx --legacy-peer-deps
+# RUN npm install ipx --legacy-peer-deps
 
 # Uygulama kodunu kopyala ve build et
 COPY . .
