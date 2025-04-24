@@ -1,0 +1,4 @@
+carrental-frontend/.nuxt/
+carrental-frontend/node_modules/
+target/
+currency_converter/.env
