@@ -32,7 +32,7 @@ docker compose up --build
 
 - Währungsumrechner (Flask): http://localhost:5000
 
-## Deployment auf Azure
+## Deployment auf Azure.
 - Bei jedem Push in den main-Branch wird das Projekt automatisch über GitHub Actions auf Azure bereitgestellt.
 
 - Live-URLs der deployten Anwendungen:
