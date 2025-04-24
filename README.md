@@ -22,7 +22,24 @@ git push -uf origin main
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://git.fh-campuswien.ac.at/c2410838024/se_car-rental/-/settings/integrations)
+## Starte alle Services mit Docker Compose
+``
+docker compose up --build
+``
+- Backend (Spring Boot): http://localhost:8080
+
+- Frontend (Nuxt.js): http://localhost:3000
+
+- Währungsumrechner (Flask): http://localhost:5000
+
+## Deployment auf Azure
+- Bei jedem Push in den main-Branch wird das Projekt automatisch über GitHub Actions auf Azure bereitgestellt.
+
+- Live-URLs der deployten Anwendungen:
+- Backend: https://carrental-backend-app.azurewebsites.net
+- Frontend: https://carrental-frontend-app.azurewebsites.net
+- Currency Converter: https://currency-converter-main.azurewebsites.net
+
 
 ## Collaborate with your team
 
