@@ -49,3 +49,4 @@ coverage/
 application-local.properties
 application-local.yml
 /target/
+carrental-frontend/.nuxt/
