@@ -86,12 +86,14 @@
             icon="material-symbols:search"
             title="No available cars found"
             description="Adjust filters or search different dates"
-            variant="subtle"</UAlert>
+            variant="subtle">
+    </UAlert>
     <UAlert v-if="!filters.startDate || !filters.endDate"
             icon="material-symbols:search"
             title="Search for cars"
             description="Enter dates above to search available cars"
-            variant="subtle"</UAlert>
+            variant="subtle">
+    </UAlert>
 
     <!-- Cars Map -->
     <div v-if="carsLoaded && filteredCars.length > 0" :key="filteredCars">
