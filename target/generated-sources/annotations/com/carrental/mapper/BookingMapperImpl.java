@@ -1,10 +1,7 @@
 package com.carrental.mapper;
 
 import com.carrental.dto.BookingDto;
-import com.carrental.dto.BookingRequestDto;
 import com.carrental.model.Booking;
-import com.carrental.model.Car;
-import com.carrental.model.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,33 +11,33 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-20T17:11:48+0200",
+    date = "2025-04-24T19:33:04+0200",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 22.0.2 (Amazon.com Inc.)"
 )
 @Component
 public class BookingMapperImpl implements BookingMapper {
 
     @Override
-    public BookingDto toDto(Booking entity) {
-        if ( entity == null ) {
+    public BookingDto toDto(Booking booking) {
+        if ( booking == null ) {
             return null;
         }
 
-        Integer userId = null;
-        Integer carId = null;
-        Integer id = null;
+        String userId = null;
+        String carId = null;
+        String id = null;
         LocalDate startDate = null;
         LocalDate endDate = null;
         BigDecimal totalCost = null;
         String currency = null;
 
-        userId = entityBookedById( entity );
-        carId = entityCarRentedId( entity );
-        id = entity.getId();
-        startDate = entity.getStartDate();
-        endDate = entity.getEndDate();
-        totalCost = entity.getTotalCost();
-        currency = entity.getCurrency();
+        userId = booking.getBookedById();
+        carId = booking.getCarRentedId();
+        id = booking.getId();
+        startDate = booking.getStartDate();
+        endDate = booking.getEndDate();
+        totalCost = booking.getTotalCost();
+        currency = booking.getCurrency();
 
         BookingDto bookingDto = new BookingDto( id, userId, carId, startDate, endDate, totalCost, currency );
 
@@ -48,61 +45,16 @@ public class BookingMapperImpl implements BookingMapper {
     }
 
     @Override
-    public List<BookingDto> toDtoList(List<Booking> entities) {
-        if ( entities == null ) {
+    public List<BookingDto> toDtoList(List<Booking> bookings) {
+        if ( bookings == null ) {
             return null;
         }
 
-        List<BookingDto> list = new ArrayList<BookingDto>( entities.size() );
-        for ( Booking booking : entities ) {
+        List<BookingDto> list = new ArrayList<BookingDto>( bookings.size() );
+        for ( Booking booking : bookings ) {
             list.add( toDto( booking ) );
         }
 
         return list;
-    }
-
-    @Override
-    public Booking toEntity(BookingRequestDto dto) {
-        if ( dto == null ) {
-            return null;
-        }
-
-        Booking booking = new Booking();
-
-        booking.setStartDate( dto.startDate() );
-        booking.setEndDate( dto.endDate() );
-        booking.setCurrency( dto.currency() );
-
-        return booking;
-    }
-
-    private Integer entityBookedById(Booking booking) {
-        if ( booking == null ) {
-            return null;
-        }
-        User bookedBy = booking.getBookedBy();
-        if ( bookedBy == null ) {
-            return null;
-        }
-        Integer id = bookedBy.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
-    }
-
-    private Integer entityCarRentedId(Booking booking) {
-        if ( booking == null ) {
-            return null;
-        }
-        Car carRented = booking.getCarRented();
-        if ( carRented == null ) {
-            return null;
-        }
-        Integer id = carRented.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
     }
 }

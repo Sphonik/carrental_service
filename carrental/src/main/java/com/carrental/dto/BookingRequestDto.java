@@ -7,9 +7,11 @@ import java.time.LocalDate;
  * - currency: ISO‑Code, z. B. "EUR" (USD wird intern abgefangen)
  */
 public record BookingRequestDto(
-        Integer userId,
-        Long    carId,
+        String userId,
+        String carId,
         LocalDate startDate,
         LocalDate endDate,
-        String  currency   // optional, default "USD"
+        String currency
 ) {}
+
+

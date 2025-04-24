@@ -6,7 +6,7 @@ setlocal EnableDelayedExpansion
 set ACR_NAME=carrental
 set ACR_USERNAME=carrental
 set ACR_PASSWORD=PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj
-set APP_NAME=part1-carrental-currency-converter-soap
+set APP_NAME=part2-carrental-currency-converter-grpc
 set RESOURCE_GROUP=se-carrental
 set APP_PLAN_NAME=app-service-plan
 
@@ -107,7 +107,7 @@ call az webapp config container set ^
 call az webapp config appsettings set ^
     --resource-group %RESOURCE_GROUP% ^
     --name %APP_NAME% ^
-    --settings WEBSITES_PORT=80
+    --settings WEBSITES_PORT=50051
 
 if %ERRORLEVEL% NEQ 0 (
     echo Error: Web App creation failed

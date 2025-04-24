@@ -2,8 +2,8 @@
 cd /d "%~dp0"
 
 :: Set variables
-set APP_NAME=part1-currency-converter-soap
-set PORT=8080
+set APP_NAME=part2-currency-converter-grpc
+set PORT=50051
 
 echo.
 echo [1/3] Starting local deployment process...
@@ -26,7 +26,7 @@ docker stop %APP_NAME% 2>nul
 docker rm %APP_NAME% 2>nul
 
 echo Starting new container...
-docker run -d --name %APP_NAME% -p %PORT%:80 %APP_NAME%:latest
+docker run -d --name %APP_NAME% -p %PORT%:%PORT% %APP_NAME%:latest
 
 if %ERRORLEVEL% NEQ 0 (
     echo Error: Container start failed

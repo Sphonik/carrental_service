@@ -2,9 +2,9 @@
   <UApp>
     <div class="flex flex-col min-h-screen">
       <!-- Header -->
-      <header class="p-6 bg-orange-800 text-white">
+      <header class="p-6 bg-blue-500 text-white shadow-md">
         <div class="flex justify-between items-center">
-          <h1 class="text-3xl font-bold">Car Rental Service</h1>
+          <h1 class="text-2xl"><a href="/"><UIcon name="material-symbols:directions-car" style="position:relative; top: 5px; font-size: 1.2em"/> Car Rental Service</a></h1>
           <!-- Hamburger Menu Button -->
           <button 
             class="lg:hidden text-white focus:outline-none" 
@@ -15,25 +15,29 @@
             </svg>
           </button>
           <!-- Main Menu -->
-          <nav :class="['lg:flex', menuOpen ? 'block' : 'hidden']" class="absolute lg:static top-16 left-0 w-full lg:w-auto bg-orange-800 lg:bg-transparent z-50">
+          <nav :class="['lg:flex', menuOpen ? 'block' : 'hidden']" class="absolute lg:static top-16 left-0 w-full lg:w-auto bg-blue-500 lg:bg-transparent z-50">
             <ul class="flex flex-col lg:flex-row lg:space-x-4">
-              <li><a href="/" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Home</a></li>
-              <li><a href="/cars" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Vehicles</a></li>
-              <li><a href="/contact" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline">Contact</a></li>
+              <li><NuxtLink to="/cars" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline">Vehicles</NuxtLink></li>
+              <li><NuxtLink to="/contact" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline">Contact</NuxtLink></li>
               <li>
-                <a 
-                  v-if="user" 
-                  href="/account" 
-                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline"
+                <NuxtLink 
+                  v-if="authStore.user" 
+                  to="/account" 
+                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline"
                 >
                   Account
-                </a>
-                <a 
-                  v-else 
-                  href="/login" 
-                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-yellow-400 hover:underline"
+                </NuxtLink>
+                <NuxtLink
+                  v-else
+                  to="/login" 
+                  class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline"
                 >
                   Login
+                </NuxtLink>
+              </li>
+              <li v-if="authStore.user">
+                <a href="#" @click.prevent="handleLogout" class="block px-4 py-2 lg:p-0 text-white no-underline transition-colors duration-300 hover:text-blue-200 hover:underline">
+                  Logout
                 </a>
               </li>
             </ul>
@@ -57,16 +61,23 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useAuth } from '~/composables/useAuth';
+import { useAuthStore } from '~/stores/auth';
+import { useRouter } from 'vue-router';
 
-const { getUser } = useAuth();
-const user = ref(null);
+const appConfig = useAppConfig();
+const { logout } = useAuth();
+const authStore = useAuthStore();
+const router = useRouter();
 const menuOpen = ref(false);
 
+const handleLogout = () => {
+  logout();
+  router.push('/login');
+};
+
 onMounted(async () => {
-  // Nur auf Client-Seite ausführen
-  if (process.client) {
-    user.value = await getUser();
-  }
+  // Auth-Status wird direkt aus dem Store gelesen, nicht mehr aus getUser()
+  // Wir brauchen kein separates ref mehr
 });
 </script>
 

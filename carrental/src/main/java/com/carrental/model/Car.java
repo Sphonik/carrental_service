@@ -1,61 +1,51 @@
 package com.carrental.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.swing.*;
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "cars")
+@Document("cars")
 public class Car {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String id;
 
-    @Column(nullable = false)
     private String make;
-
-    @Column(nullable = false)
     private String model;
-
-    @Column(nullable = false)
     private Integer year;
-
-    @Column(nullable = false)
     private String color;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private FuelType fuelType;
-
-    @Column(nullable = false)
     private boolean automatic;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal pricePerDay; // Stored as USD
-
-    @Column(nullable = false)
+    private BigDecimal pricePerDay;   // USD
     private String pickupLocation;
-
-    @Column(nullable = false)
-    private boolean available; // true = rented, false = available
+    private boolean available;
 
     public Car() {}
 
-    public Car(String make, String model, Integer year, String color, FuelType fuelType, boolean automatic, BigDecimal pricePerDay, String pickupLocation) {
-        this.make = make;
-        this.model = model;
-        this.year = year;
-        this.color = color;
-        this.fuelType = fuelType;
-        this.automatic = automatic;
-        this.pricePerDay = pricePerDay;
+    public Car(String make,
+               String model,
+               Integer year,
+               String color,
+               FuelType fuelType,
+               boolean automatic,
+               BigDecimal pricePerDay,
+               String pickupLocation) {
+        this.make           = make;
+        this.model          = model;
+        this.year           = year;
+        this.color          = color;
+        this.fuelType       = fuelType;
+        this.automatic      = automatic;
+        this.pricePerDay    = pricePerDay;
         this.pickupLocation = pickupLocation;
-        this.available = false; // Default: Car is available when added
+        this.available      = true;
     }
 
     // Getters & Setters
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getMake() { return make; }
     public void setMake(String make) { this.make = make; }

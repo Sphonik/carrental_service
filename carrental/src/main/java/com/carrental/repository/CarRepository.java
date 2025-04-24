@@ -1,27 +1,19 @@
 package com.carrental.repository;
 
-
+import java.util.Optional;
 import com.carrental.model.Car;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface CarRepository extends JpaRepository<Car, Long> {
+@Repository
+public interface CarRepository extends MongoRepository<Car, String> {
+
+    /** Alle Cars, die aktuell als verfügbar markiert sind */
     List<Car> findByAvailableTrue();
-    @Query("""
-   SELECT c FROM Car c
-   WHERE c.available = true
-     AND NOT EXISTS (
-       SELECT 1 FROM Booking b
-       WHERE b.carRented.id = c.id
-         AND b.startDate <= :to
-         AND b.endDate   >= :from
-   )
-""")
-    List<Car> findAvailableBetween(@Param("from") LocalDate from,
-                                   @Param("to")   LocalDate to);
+    Optional<Car> findByMakeAndModel(String make, String model);
 
 }

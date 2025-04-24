@@ -1,143 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Rental API Test Client</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        section { margin-bottom: 30px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        h2 { margin-top: 0; }
-        label { display: inline-block; width: 120px; vertical-align: top; }
-        input, select, button { margin: 4px 0; }
-        pre { background: #f8f8f8; padding: 10px; overflow: auto; }
-    </style>
+    <title>Car-Rental Test Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h1>Car Rental API Test Client</h1>
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col gap-6 p-6">
 
-<section id="auth">
-    <h2>Authentication</h2>
-    <label>Username:</label><input id="username" type="text" value="user1"><br>
-    <label>Password:</label><input id="password" type="password" value="pass1"><br>
-    <button onclick="setCredentials()">Set Credentials</button>
-    <p id="auth-status"></p>
+<!-- 🔑 Login -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">🔑 Login</h2>
+    <div class="flex flex-wrap gap-2 items-end">
+        <label class="flex flex-col">
+            <span class="text-sm">Username</span>
+            <input id="user" class="input">
+        </label>
+        <label class="flex flex-col">
+            <span class="text-sm">Password</span>
+            <input id="pass" type="password" class="input">
+        </label>
+        <button id="btn-login" class="btn">Login</button>
+        <span id="login-state" class="ml-2 text-sm"></span>
+    </div>
 </section>
 
-<section id="cars">
-    <h2>Fetch Available Cars</h2>
-    <label>From:</label><input id="cars-start" type="date"><br>
-    <label>To:</label><input id="cars-end" type="date"><br>
-    <label>Currency:</label><input id="cars-currency" type="text" value="USD"><br>
-    <button onclick="fetchCars()">Fetch Cars</button>
-    <pre id="cars-result"></pre>
+<!-- 🚗 Cars -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">🚗 Cars</h2>
+    <div class="flex flex-wrap items-end gap-2">
+        <label class="flex flex-col">
+            <span class="text-sm">From</span>
+            <input id="from" type="date" class="input">
+        </label>
+        <label class="flex flex-col">
+            <span class="text-sm">To</span>
+            <input id="to" type="date" class="input">
+        </label>
+        <label class="flex flex-col">
+            <span class="text-sm">Currency</span>
+            <input id="currency" value="USD" class="input w-24">
+        </label>
+        <button id="btn-search" class="btn">Search</button>
+        <button id="btn-allcars" class="btn-secondary">All</button>
+    </div>
 </section>
 
-<section id="bookings-list">
-    <h2>List All Bookings</h2>
-    <button onclick="listBookings()">List Bookings</button>
-    <pre id="bookings-result"></pre>
+<!-- 📑 Book / Return -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">📑 Book / Return</h2>
+    <div class="flex flex-wrap items-end gap-2">
+        <label class="flex flex-col">
+            <span class="text-sm">Car ID</span>
+            <input id="carId" class="input w-52">
+        </label>
+        <button id="btn-book" class="btn">Book</button>
+        <button id="btn-return" class="btn-secondary">Return</button>
+    </div>
 </section>
 
-<section id="bookings-by-user">
-    <h2>List Bookings by User</h2>
-    <label>User ID:</label><input id="bookings-user-id" type="number" value="1"><br>
-    <button onclick="listBookingsByUser()">Fetch</button>
-    <pre id="bookings-user-result"></pre>
+<!-- 📋 Bookings -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">📋 Bookings</h2>
+    <div class="flex flex-wrap items-end gap-2">
+        <button id="btn-bookings" class="btn">All</button>
+        <label class="flex flex-col">
+            <span class="text-sm">User ID</span>
+            <input id="bookUserId" class="input w-52">
+        </label>
+        <button id="btn-bookings-user" class="btn-secondary">By User</button>
+    </div>
 </section>
 
-<section id="booking-create">
-    <h2>Create Booking</h2>
-    <label>User ID:</label><input id="create-user-id" type="number" value="1"><br>
-    <label>Car ID:</label><input id="create-car-id" type="number" value="3"><br>
-    <label>From:</label><input id="create-start" type="date"><br>
-    <label>To:</label><input id="create-end" type="date"><br>
-    <label>Currency:</label><input id="create-currency" type="text" value="USD"><br>
-    <button onclick="createBooking()">Create</button>
-    <pre id="create-result"></pre>
+<!-- 👤 Users -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">👤 Users</h2>
+    <button id="btn-users" class="btn">All Users (Admin)</button>
 </section>
 
-<section id="user-create">
-    <h2>Create User</h2>
-    <label>First Name:</label><input id="user-first" type="text" placeholder="Max"><br>
-    <label>Last Name:</label><input id="user-last" type="text" placeholder="Mustermann"><br>
-    <label>Username:</label><input id="user-username" type="text" placeholder="maxm"><br>
-    <label>Password:</label><input id="user-password" type="password" placeholder="secret"><br>
-    <label>Role:</label>
-    <select id="user-role">
-        <option value="USER">USER</option>
-        <option value="ADMIN">ADMIN</option>
-    </select><br>
-    <button onclick="createUser()">Create User</button>
-    <pre id="user-create-result"></pre>
+<!-- 🖥️ Output -->
+<section class="p-4 bg-white rounded-xl shadow-md overflow-auto">
+    <h2 class="text-xl font-semibold mb-2">🖥️ Response</h2>
+    <pre id="out" class="whitespace-pre-wrap text-sm"></pre>
 </section>
+
+<style>
+    .input { @apply border rounded-lg px-2 py-1 shadow-sm;}
+    .btn { @apply bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-1 shadow;}
+    .btn-secondary { @apply bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-4 py-1 shadow;}
+</style>
 
 <script>
-    let authHeader = '';
-    function setCredentials() {
-        const u = document.getElementById('username').value;
-        const p = document.getElementById('password').value;
-        authHeader = 'Basic ' + btoa(u + ':' + p);
-        document.getElementById('auth-status').textContent = `Using credentials for ${u}`;
-    }
+    /* ---------- global auth object ---------- */
+    window.auth = { user:"", pass:"" };
 
-    async function fetchCars() {
-        const start = document.getElementById('cars-start').value;
-        const end = document.getElementById('cars-end').value;
-        const currency = document.getElementById('cars-currency').value;
-        const url = `/api/v1/cars?from=${start}&to=${end}&currency=${currency}`;
-        const res = await fetch(url, { headers: { 'Authorization': authHeader } });
-        document.getElementById('cars-result').textContent = await res.text();
-    }
+    /* ---------- helper ---------- */
+    const out = document.getElementById("out");
+    const show = d => out.textContent = JSON.stringify(d,null,2);
 
-    async function listBookings() {
-        const res = await fetch('/api/v1/bookings', { headers: { 'Authorization': authHeader } });
-        document.getElementById('bookings-result').textContent = await res.text();
-    }
+    const authHeaders = () =>
+        window.auth.user
+            ? { Authorization: "Basic " + btoa(window.auth.user + ":" + window.auth.pass) }
+            : {};
 
-    async function listBookingsByUser() {
-        const uid = document.getElementById('bookings-user-id').value;
-        const res = await fetch(`/api/v1/bookings/user/${uid}`, { headers: { 'Authorization': authHeader } });
-        document.getElementById('bookings-user-result').textContent = await res.text();
-    }
-
-    async function createBooking() {
-        const body = JSON.stringify({
-            userId: parseInt(document.getElementById('create-user-id').value),
-            carId: parseInt(document.getElementById('create-car-id').value),
-            startDate: document.getElementById('create-start').value,
-            endDate: document.getElementById('create-end').value,
-            currency: document.getElementById('create-currency').value
+    async function api(path, opts={}) {
+        const res = await fetch(path, {
+            ...opts,
+            headers: { "Content-Type":"application/json", ...authHeaders(), ...opts.headers },
+            credentials: "include"
         });
-        const res = await fetch('/api/v1/bookings', {
-            method: 'POST',
-            headers: {
-                'Authorization': authHeader,
-                'Content-Type': 'application/json'
-            },
-            body
-        });
-        document.getElementById('create-result').textContent = await res.text();
+        const txt = await res.text();
+        try { return JSON.parse(txt); } catch { return txt || res.status; }
     }
 
-    async function createUser() {
-        const body = JSON.stringify({
-            firstName: document.getElementById('user-first').value,
-            lastName:  document.getElementById('user-last').value,
-            username:  document.getElementById('user-username').value,
-            password:  document.getElementById('user-password').value,
-            userRole:  document.getElementById('user-role').value
+    /* ---------- login ---------- */
+    document.getElementById("btn-login").onclick = async () => {
+        const user = document.getElementById("user").value;
+        const pass = document.getElementById("pass").value;
+        if(!user || !pass) return alert("enter credentials");
+
+        const res = await fetch("/api/v1/users/login", {
+            method:"POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ username:user, password:pass })
         });
-        const res = await fetch('/api/v1/users', {
-            method: 'POST',
-            headers: {
-                'Authorization': authHeader,
-                'Content-Type': 'application/json'
-            },
-            body
-        });
-        document.getElementById('user-create-result').textContent = await res.text();
-    }
+
+        if (res.ok) {
+            window.auth = { user, pass };
+            document.getElementById("login-state").textContent = "🟢 logged in";
+            show(await res.json());
+        } else {
+            window.auth = { user:"", pass:"" };
+            document.getElementById("login-state").textContent = "🔴 failed";
+            show(await res.text());
+        }
+    };
+
+    /* ---------- cars ---------- */
+    document.getElementById("btn-search").onclick = async () => {
+        const f = from.value, t = to.value, cur = currency.value || "USD";
+        if(!f||!t) return alert("dates missing");
+        show(await api(`/api/v1/cars?from=${f}&to=${t}&currency=${cur}`));
+    };
+    document.getElementById("btn-allcars").onclick = async () =>
+        show(await api("/api/v1/cars"));
+
+    document.getElementById("btn-book").onclick = async () =>
+        show(await api(`/api/v1/cars/book/${carId.value}`, {method:"POST"}));
+    document.getElementById("btn-return").onclick = async () =>
+        show(await api(`/api/v1/cars/return/${carId.value}`, {method:"POST"}));
+
+    /* ---------- bookings ---------- */
+    btn_bookings.onclick = async () => show(await api("/api/v1/bookings"));
+    btn_bookings_user.onclick = async () =>
+        show(await api(`/api/v1/bookings/user/${bookUserId.value}`));
+
+    /* ---------- users ---------- */
+    btn_users.onclick = async () => show(await api("/api/v1/users"));
 </script>
 </body>
 </html>

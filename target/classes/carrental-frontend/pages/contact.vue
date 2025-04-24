@@ -3,14 +3,14 @@
     <h1 class="text-3xl font-bold mb-8">Contact Us</h1>
 
     <!-- Contact Information -->
-    <div class="border border-gray-700 rounded-lg p-6">
+    <div class="border border-gray-100 dark:border-gray-600 shadow-md rounded-lg p-6">
       <h2 class="text-2xl font-semibold mb-4">Our Contact Information</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Email -->
-        <div class="p-4 border border-gray-700 rounded-lg">
+        <div class="p-4 bg-gray-100 dark:bg-zinc-800 shadow rounded-lg">
           <div class="flex items-center mb-3">
-            <i class="i-heroicons-envelope text-2xl text-blue-400 mr-2"></i>
+            <UIcon name="i-heroicons-envelope" class="text-2xl text-blue-400 mr-2"></UIcon>
             <h3 class="text-xl font-semibold">Email</h3>
           </div>
           <p class="text-gray-400">support@carrental.com</p>
@@ -18,9 +18,9 @@
         </div>
 
         <!-- Phone -->
-        <div class="p-4 border border-gray-700 rounded-lg">
+        <div class="p-4 bg-gray-100 dark:bg-zinc-800 shadow rounded-lg">
           <div class="flex items-center mb-3">
-            <i class="i-heroicons-phone text-2xl text-blue-400 mr-2"></i>
+            <UIcon name="i-heroicons-phone" class="text-2xl text-blue-400 mr-2"></UIcon>
             <h3 class="text-xl font-semibold">Phone</h3>
           </div>
           <p class="text-gray-400">+1 234 567 890</p>
@@ -28,9 +28,9 @@
         </div>
 
         <!-- Address -->
-        <div class="p-4 border border-gray-700 rounded-lg">
+        <div class="p-4 bg-gray-100 dark:bg-zinc-800 shadow rounded-lg">
           <div class="flex items-center mb-3">
-            <i class="i-heroicons-map-pin text-2xl text-blue-400 mr-2"></i>
+            <UIcon name="i-heroicons-map-pin" class="text-2xl text-blue-400 mr-2"></UIcon>
             <h3 class="text-xl font-semibold">Address</h3>
           </div>
           <p class="text-gray-400">123 Car Rental Street</p>
@@ -39,9 +39,9 @@
       </div>
 
       <!-- Business Hours -->
-      <div class="mt-8 p-4 border border-gray-700 rounded-lg">
+      <div class="mt-8 p-4 bg-gray-100 dark:bg-zinc-800 shadow rounded-lg">
         <div class="flex items-center mb-3">
-          <i class="i-heroicons-clock text-2xl text-blue-400 mr-2"></i>
+          <UIcon name="i-heroicons-clock" class="text-2xl text-blue-400 mr-2"></UIcon>
           <h3 class="text-xl font-semibold">Business Hours</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

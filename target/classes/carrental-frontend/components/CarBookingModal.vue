@@ -1,6 +1,6 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="border border-gray-700 rounded-lg p-6 w-full max-w-lg">
+  <div v-if="isOpen" class="fixed inset-0 bg-white/75 dark:bg-black/75 flex items-center justify-center z-50">
+    <div class="border border-gray-300 dark:border-gray-700 rounded-lg p-6 w-full max-w-lg bg-white dark:bg-black shadow-md">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Book Vehicle</h2>
         <UButton
@@ -8,32 +8,33 @@
           color="gray"
           variant="ghost"
           @click="closeModal"
+          class="cursor-pointer"
         />
       </div>
 
       <div class="mb-6 space-y-2">
         <div class="flex justify-between">
-          <span>Vehicle:</span>
-          <span class="text-blue-400">{{ car.make }} {{ car.model }}</span>
+          <span class="text-gray-500/75 dark:text-white/65">Vehicle:</span>
+          <span>{{ car.year }} {{ car.make }} {{ car.model }}</span>
         </div>
         <div class="flex justify-between">
-          <span>Price per day:</span>
-          <span class="text-blue-400 font-bold">{{ getCurrentSymbol() }}{{ car.pricePerDay }}</span>
+          <span class="text-gray-500/75 dark:text-white/65">Price per day:</span>
+          <span class="text-green-700 dark:text-green-400">{{ getCurrentSymbol() }}{{ car.pricePerDay }}</span>
         </div>
         
         <!-- Date display when both dates are selected -->
         <template v-if="booking.startDate && booking.endDate">
           <div class="flex justify-between">
-            <span>Start date:</span>
-            <span class="text-blue-400">{{ formatDate(booking.startDate) }}</span>
+            <span class="text-gray-500/75 dark:text-white/65">Start date:</span>
+            <span>{{ formatDate(booking.startDate) }}</span>
           </div>
           <div class="flex justify-between">
-            <span>End date:</span>
-            <span class="text-blue-400">{{ formatDate(booking.endDate) }}</span>
+            <span class="text-gray-500/75 dark:text-white/65">End date:</span>
+            <span>{{ formatDate(booking.endDate) }}</span>
           </div>
-          <div v-if="totalPrice" class="flex justify-between border-t border-gray-700 pt-2 mt-2">
-            <span>Total price:</span>
-            <span class="text-blue-400 font-bold">{{ getCurrentSymbol() }}{{ totalPrice }}</span>
+          <div v-if="totalPrice" class="flex justify-between border-t border-gray-300 dark:border-gray-700 pt-2 mt-2">
+            <span class="text-gray-500/75 dark:text-white/65">Total price:</span>
+            <span class="text-green-700 dark:text-green-400 font-bold">{{ getCurrentSymbol() }}{{ totalPrice }}</span>
           </div>
         </template>
       </div>
@@ -79,6 +80,7 @@
             variant="soft" 
             @click="closeModal"
             size="lg"
+            class="cursor-pointer"
           >
             Cancel
           </UButton>
@@ -87,6 +89,7 @@
             color="primary"
             :loading="isLoading"
             size="lg"
+            class="cursor-pointer"
           >
             {{ isLoading ? 'Booking...' : 'Confirm Booking' }}
           </UButton>
@@ -97,11 +100,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCurrency } from '~/composables/useCurrency'
+import { useApi } from '~/composables/useApi' 
+import { useAuthStore } from '~/stores/auth' // Auth-Store importieren
 
 const route = useRoute()
+const { endpoints, getAuthHeaders } = useApi() // API Composable verwenden
+const authStore = useAuthStore() // Auth-Store verwenden
+
 const props = defineProps({
   isOpen: Boolean,
   car: Object,
@@ -156,10 +164,30 @@ const handleBooking = async () => {
       throw new Error('End date must be after start date')
     }
 
-    // Simulate API call
-    console.log('Booking successful:', booking.value)
+    // Echter API-Aufruf mit Auth-Headers
+    const response = await fetch(endpoints.cars.book(), {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        carId: props.car.id,
+        userId: authStore.user.userId, 
+        startDate: booking.value.startDate,
+        endDate: booking.value.endDate,
+        currency: props.car.currency || 'USD'
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.text()
+      throw new Error(errorData || 'Booking failed')
+    }
+
     emit('booking-success')
     closeModal()
+    await navigateTo({path: '/account'})
   } catch (err) {
     error.value = err.message
   } finally {

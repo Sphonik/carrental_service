@@ -26,13 +26,13 @@ public class CarController {
     }
 
     @PostMapping("/book/{id}")
-    public ResponseEntity<CarDto> bookCar(@PathVariable Long id) {
+    public ResponseEntity<CarDto> bookCar(@PathVariable String id) {
         CarDto bookedCar = carService.bookCar(id);
         return ResponseEntity.ok(bookedCar);
     }
 
     @PostMapping("/return/{id}")
-    public ResponseEntity<CarDto> returnCar(@PathVariable Long id) {
+    public ResponseEntity<CarDto> returnCar(@PathVariable String id) {
         CarDto returnedCar = carService.returnCar(id);
         return ResponseEntity.ok(returnedCar);
     }
@@ -47,7 +47,7 @@ public class CarController {
     }
 
     @GetMapping("/{id}")
-    public CarDto getCarById(@PathVariable Long id) {
+    public CarDto getCarById(@PathVariable String id) {
         return carService.getCarById(id);
     }
 

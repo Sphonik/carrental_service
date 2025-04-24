@@ -1,8 +1,8 @@
-// src/main/java/com/carrental/config/SecurityConfig.java
 package com.carrental.config;
 
 import com.carrental.model.User;
 import com.carrental.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,45 +10,52 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.password.*;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.*;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final UserRepository userRepo;
+    private final UserRepository users;
 
-    public SecurityConfig(UserRepository userRepo) {
-        this.userRepo = userRepo;
-    }
+    public SecurityConfig(UserRepository users) { this.users = users; }
 
+    /* ---------- UserDetails ---------- */
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            User u = userRepo.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            // map your roles to GrantedAuthority
-            SimpleGrantedAuthority auth = new SimpleGrantedAuthority("ROLE_" + u.getUserRole().name());
+            User u = users.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException(username));
             return new org.springframework.security.core.userdetails.User(
                     u.getUsername(),
                     u.getPassword(),
-                    List.of(auth)
+                    List.of(new SimpleGrantedAuthority("ROLE_" + u.getUserRole().name()))
             );
         };
     }
-
+/*
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // for a real app you’d switch this to BCryptPasswordEncoder
-        return NoOpPasswordEncoder.getInstance();
-        //return new BCryptPasswordEncoder(/* strength: 10 */); TODO add it after migration
+        return new BCryptPasswordEncoder(10);
     }
+*/
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();   // <-- Klartext !
+    }
+
 
     @Bean
     public DaoAuthenticationProvider authProvider() {
@@ -58,22 +65,48 @@ public class SecurityConfig {
         return p;
     }
 
+    /* ---------- JSON-401 statt Browser-Popup ---------- */
+    private AuthenticationEntryPoint restEntry() {
+        return (req, res, ex) -> {
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.setContentType("application/json");
+            res.getWriter().printf("""
+                {
+                  "timestamp":"%s",
+                  "status":401,
+                  "error":"Unauthorized",
+                  "message":"Authentication required",
+                  "path":"%s"
+                }""", Instant.now(), req.getRequestURI());
+        };
+    }
+
+    /* ---------- CORS (nur wenn du von extern zugreifst) ---------- */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
+        cfg.setAllowedOrigins(List.of("http://localhost:8080","http://127.0.0.1:8080"));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", cfg);
+        return src;
+    }
+
+    /* ---------- Filter-Chain ---------- */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authz -> authz
-                        // 1) Erlaube das Anlegen neuer User
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-                        // 2) Deine bisherigen Freigaben
-                        .requestMatchers(HttpMethod.DELETE, "/bookings/**").authenticated() // Nur für Admins
-
-                        .requestMatchers("/static/**", "/", "/index.html").permitAll()
-                        // 3) alles andere bleibt geschützt
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(Customizer.withDefaults());
+                .cors(Customizer.withDefaults())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/login").permitAll()
+                        .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .httpBasic(basic -> basic.authenticationEntryPoint(restEntry()));
         return http.build();
     }
-
 }

@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 const { login } = useAuth()
 const router = useRouter()
 
-const email = ref('')
+const username = ref('') // Changed from email to username
 const password = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
@@ -16,7 +16,7 @@ const loginUser = async () => {
   errorMessage.value = ''
 
   try {
-    await login(email.value, password.value)
+    await login(username.value, password.value) // Changed from email to username
     router.push('/') // Redirect after successful login
   } catch (err) {
     errorMessage.value = err.message || 'Login failed'
@@ -24,6 +24,10 @@ const loginUser = async () => {
     loading.value = false
   }
 }
+
+definePageMeta({
+  middleware: ['guest']
+})
 </script>
 
 <template>
@@ -38,15 +42,15 @@ const loginUser = async () => {
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="p-8 border border-gray-700 rounded-lg">
+      <div class="p-8 border border-gray-100 dark:border-gray-600 shadow-md rounded-lg">
         <form @submit.prevent="loginUser" class="space-y-6">
           <div>
             <UInput
-              v-model="email"
-              type="email"
-              label="Email"
+              v-model="username"
+              type="text"
+              label="Username"
               required
-              placeholder="name@example.com"
+              placeholder="Enter username"
               class="block w-full"
               size="lg"
             />
@@ -84,6 +88,7 @@ const loginUser = async () => {
               :loading="loading"
               block
               size="lg"
+              class="cursor-pointer"
             >
               {{ loading ? 'Signing in...' : 'Sign in' }}
             </UButton>
@@ -93,10 +98,10 @@ const loginUser = async () => {
         <div class="mt-6">
           <div class="relative">
             <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-700"></div>
+              <div class="w-full border-t border-gray-200 dark:border-gray-600"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2">
+              <span class="px-2 bg-white dark:bg-zinc-900">
                 Don't have an account?
               </span>
             </div>

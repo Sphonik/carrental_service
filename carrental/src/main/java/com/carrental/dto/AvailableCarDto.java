@@ -3,7 +3,7 @@ package com.carrental.dto;
 import java.math.BigDecimal;
 
 public record AvailableCarDto(
-        Integer id,
+        String id,
         String make,
         String model,
         BigDecimal pricePerDayUsd,

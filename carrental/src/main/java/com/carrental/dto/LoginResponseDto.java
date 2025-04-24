@@ -1,3 +1,3 @@
 package com.carrental.dto;
 
-public record LoginResponseDto(Integer userId) {}
+public record LoginResponseDto(String userId) {}

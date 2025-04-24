@@ -1,27 +1,21 @@
 package com.carrental.mapper;
 
 import com.carrental.dto.BookingDto;
-import com.carrental.dto.BookingRequestDto;
 import com.carrental.model.Booking;
-import com.carrental.model.Car;
-import com.carrental.model.User;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
 
-    @Mapping(source = "bookedBy.id", target = "userId")
-    @Mapping(source = "carRented.id", target = "carId")
-    BookingDto toDto(Booking entity);
+    /**
+     * Map Booking → BookingDto, pulling the two DBRef IDs out of the nested objects.
+     */
+    @Mapping(source = "bookedById", target = "userId")
+    @Mapping(source = "carRentedId", target = "carId")
+    BookingDto toDto(Booking booking);
 
-    List<BookingDto> toDtoList(List<Booking> entities);
-
-    @InheritInverseConfiguration(name = "toDto")
-    @Mapping(target = "bookedBy", ignore = true)
-    @Mapping(target = "carRented", ignore = true)
-    @Mapping(target = "totalCost", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    Booking toEntity(BookingRequestDto dto);
+    List<BookingDto> toDtoList(List<Booking> bookings);
 }

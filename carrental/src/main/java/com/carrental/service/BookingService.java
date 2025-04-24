@@ -1,3 +1,4 @@
+// src/main/java/com/carrental/service/BookingService.java
 package com.carrental.service;
 
 import com.carrental.dto.BookingDto;
@@ -11,10 +12,10 @@ import com.carrental.model.User;
 import com.carrental.repository.BookingRepository;
 import com.carrental.repository.CarRepository;
 import com.carrental.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
@@ -32,42 +33,33 @@ public class BookingService {
     private final UserRepository         userRepo;
     private final CurrencyConverterClient currencyClient;
 
-
-    /* ----------  expliziter Konstruktor (kein Lombok) ---------- */
     public BookingService(BookingRepository bookingRepo,
                           BookingMapper mapper,
                           CarRepository carRepo,
                           UserRepository userRepo,
-                          CurrencyConverterClient currencyClient, BookingRepository bookingRepository) {
-        this.bookingRepo   = bookingRepo;
-        this.mapper        = mapper;
-        this.carRepo       = carRepo;
-        this.userRepo      = userRepo;
-        this.currencyClient= currencyClient;
+                          CurrencyConverterClient currencyClient) {
+        this.bookingRepo    = bookingRepo;
+        this.mapper         = mapper;
+        this.carRepo        = carRepo;
+        this.userRepo       = userRepo;
+        this.currencyClient = currencyClient;
     }
-    /* ----------------------------------------------------------- */
-
-    /* ---------------------  READ  ------------------------------ */
 
     public List<BookingDto> getAllBookingDtos() {
         return mapper.toDtoList(bookingRepo.findAll());
     }
 
-    public BookingDto getBookingDto(Integer id) {
+    public BookingDto getBookingDto(String id) {
         Booking entity = bookingRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking", id));
         return mapper.toDto(entity);
     }
 
-    public List<BookingDto> getBookingDtosByUser(Integer userId) {
-        return mapper.toDtoList(bookingRepo.findByBookedBy_Id(userId));
+    public List<BookingDto> getBookingDtosByUser(String userId) {
+        return mapper.toDtoList(bookingRepo.findByBookedById(userId));
     }
 
-    /* --------------------  CREATE  ----------------------------- */
-
     public BookingDto createBooking(BookingRequestDto req) {
-
-        /* 1) Grundvaliderung der Daten */
         if (req.startDate().isAfter(req.endDate())) {
             throw new InvalidBookingRequestException("startDate must be before endDate");
         }
@@ -77,18 +69,15 @@ public class BookingService {
         Car  car  = carRepo.findById(req.carId())
                 .orElseThrow(() -> new EntityNotFoundException("Car", req.carId()));
 
-        /* 2) Verfügbarkeit */
-        boolean overlapping = bookingRepo.existsOverlapping(
-                car.getId(), req.startDate(), req.endDate());
+        boolean overlapping = bookingRepo.existsByCarRentedIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                car.getId(), req.endDate(), req.startDate());
         if (overlapping) {
             throw new CarNotAvailableException(car.getId());
         }
 
-        /* 3) Kosten berechnen – Basis = USD */
-        long        days        = ChronoUnit.DAYS.between(req.startDate(), req.endDate());
-        BigDecimal  costUsd     = car.getPricePerDay().multiply(BigDecimal.valueOf(days));
+        long days     = ChronoUnit.DAYS.between(req.startDate(), req.endDate());
+        BigDecimal costUsd = car.getPricePerDay().multiply(BigDecimal.valueOf(days));
 
-        /* 4) Währungs­konvertierung */
         BigDecimal totalCost;
         try {
             totalCost = currencyClient.convert(costUsd, req.currency());
@@ -97,11 +86,15 @@ public class BookingService {
             totalCost = costUsd;
         }
 
-        /* 5) Entität bauen & speichern */
-        Booking entity = new Booking(user, car,
-                req.startDate(), req.endDate(),
-                car.getPricePerDay(), req.currency().toUpperCase());
-        entity.setTotalCost(totalCost);          // überschreibt USD‑Kosten mit Ziel­währung
+        Booking entity = new Booking(
+                user.getId(),
+                car.getId(),
+                req.startDate(),
+                req.endDate(),
+                car.getPricePerDay(),
+                req.currency().toUpperCase()
+        );
+        entity.setTotalCost(totalCost);
 
         Booking saved = bookingRepo.save(entity);
         log.info("Booked car {} for user {} ({} {})",
@@ -110,15 +103,10 @@ public class BookingService {
         return mapper.toDto(saved);
     }
 
-    @Transactional
-    public void deleteBookingById(Integer id) {
-        // Prüfen, ob die Buchung existiert
+    public void deleteBookingById(String id) {
         if (!bookingRepo.existsById(id)) {
             throw new BookingNotFoundException(id);
         }
-
-        // Löschen der Buchung
         bookingRepo.deleteById(id);
     }
-
 }

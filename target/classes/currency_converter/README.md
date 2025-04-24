@@ -1,8 +1,8 @@
-## SOAP WEB SERVICE – Currency Converter
+## gRPC WEB SERVICE – Currency Converter
 
-This SOAP-based Web Service converts currency amounts from **USD** to another supported currency using the latest European Central Bank (ECB) exchange rates.
+This gRPC-based Web Service converts currency amounts from **USD** to another supported currency using the latest European Central Bank (ECB) exchange rates.
 
-**Important:** Due to compatibility issues, this service is specifically tested with **Python 3.10**. Python 3.13 is incompatible, and Python 3.12 is reportedly problematic.
+**Important:** This service is tested with **Python 3.10** but should work with other recent Python versions.
 
 ---
 
@@ -17,100 +17,126 @@ pip install -r requirements.txt
 ### Dependencies (`requirements.txt`):
 
 ```
-spyne==2.14.0
-zeep==4.2.1
+grpcio==1.56.0
+grpcio-tools==1.56.0
 requests==2.31.0
-lxml==5.1.0
-pytz==2024.1
-werkzeug==3.0.1
+lxml==4.9.3
+pytz==2023.3
+python-dotenv==1.0.0
 ```
 
 ---
 
 ### 🔐 Authentication
 
-The service is protected by **HTTP Basic Authentication**.
+The service is protected by **Basic Authentication** implemented via gRPC interceptors.
 
-Default credentials (modifiable in `currency_converter_service.py`):
+Set your credentials as environment variables or in a `.env` file:
 
 ```
-Username: user123
-Password: pass123
+AUTH_USERNAME=user123
+AUTH_PASSWORD=pass123
 ```
 
 ---
 
-### 🚀 Run the SOAP Web Service
+### 🚀 Run the gRPC Service
 
-Start the currency converter service with:
+First, generate the gRPC code from the proto definition:
+
+```bash
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. proto/currency_converter.proto
+```
+
+Then start the currency converter service:
 
 ```bash
 python currency_converter_service.py
 ```
 
-- The service listens on **port 8000** for incoming SOAP requests.
+- The service listens on **port 50051** for incoming gRPC requests.
 
 ---
 
-### 📦 Example SOAP Request
+### 📦 Example Client Request
 
-Example request converting **100 USD** to **JPY**:
-
-```xml
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:spy="spyne.examples.currency">
-  <soapenv:Header/>
-  <soapenv:Body>
-    <spy:convert_currency>
-      <spy:amount>100</spy:amount>
-      <spy:to_currency>JPY</spy:to_currency>
-    </spy:convert_currency>
-  </soapenv:Body>
-</soapenv:Envelope>
-```
-
-**Note:** Include authentication headers (Basic Auth) with each request.
-
----
-
-### 🧪 Testing with the SOAP Test Client
-
-Run the provided Zeep-based SOAP client (`soap_test_client.py`) with authentication:
+Use the provided client to test the service:
 
 ```bash
-python soap_test_client.py
+python currency_converter_client.py
 ```
 
-Ensure credentials within `soap_test_client.py` match those configured in the service:
+Or create your own client using the gRPC interface:
 
 ```python
-# Example credentials in soap_test_client.py
-username = 'user123'
-password = 'fortnite'
+import grpc
+import base64
+from proto import currency_converter_pb2
+from proto import currency_converter_pb2_grpc
+
+# Authentication
+auth_token = base64.b64encode(f"user123:pass123".encode()).decode()
+metadata = [('authorization', f'Basic {auth_token}')]
+
+# Create a gRPC channel
+with grpc.insecure_channel('localhost:50051') as channel:
+    # Create a stub
+    stub = currency_converter_pb2_grpc.CurrencyConverterStub(channel)
+    
+    # Create a request
+    request = currency_converter_pb2.ConversionRequest(
+        amount=100.0,
+        to_currency='JPY'
+    )
+    
+    # Make the request with authentication
+    response = stub.ConvertCurrency(request, metadata=metadata)
+    print(f"100 USD = {response.converted_amount} JPY")
 ```
 
 ---
 
 ### ✅ Service Features
 
-- Converts currency amounts from USD to supported target currencies.
-- Daily caching of ECB exchange rates at **16:00 CET**.
-- Clear error handling via SOAP Fault responses.
-- Extensive logging for debugging and monitoring.
+- Converts currency amounts from USD to supported target currencies
+- Daily caching of ECB exchange rates at **16:00 CET**
+- Clear error handling via gRPC status codes
+- Extensive logging for debugging and monitoring
+- Secure authentication via interceptors
 
 ---
 
 ### 📁 Project Structure
 
 ```
-├── currency_converter_service.py   # Main service with authentication
-├── soap_test_client.py             # Client to test SOAP requests
-├── requirements.txt                # Dependencies
-├── README.md                       # This documentation
-└── runtime.txt (optional)          # Python version specification (3.10.x recommended)
+currency_converter/
+├── proto/
+│   └── currency_converter.proto        # Protocol Buffers service definition
+├── currency_converter_service.py       # Main service implementation
+├── currency_converter_client.py        # Test client
+├── requirements.txt                    # Dependencies
+├── .env                                # Environment variables (create this file)
+└── README.md                           # This documentation
 ```
 
 ---
 
 ### ⚠️ Security Notice
 
-This implementation uses HTTP Basic Authentication. For secure, production-level deployment, ensure the service runs over HTTPS.
+This implementation uses Basic Authentication over an insecure gRPC channel. For production environments, consider:
+
+1. Using TLS encryption (gRPC secure channel)
+2. Implementing more robust authentication mechanisms like JWT or OAuth
+3. Adding rate limiting to prevent abuse
+
+---
+
+### 🔄 Migration from SOAP
+
+This service was migrated from a SOAP-based implementation to gRPC for:
+
+- Better performance with HTTP/2
+- Smaller message sizes with Protocol Buffers
+- Strong typing and contract-first development
+- Bi-directional streaming capabilities
+- Native code generation for multiple languages

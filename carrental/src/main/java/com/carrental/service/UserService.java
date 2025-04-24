@@ -12,8 +12,8 @@ import com.carrental.model.UserRole;
 import com.carrental.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -22,23 +22,26 @@ public class UserService {
 
     private final UserRepository  userRepository;
     private final UserMapper      userMapper;
-    private final PasswordEncoder pwEncoder;
+    private final PasswordEncoder encoder;   // hier: NoOpPasswordEncoder
 
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
-                       PasswordEncoder pwEncoder) {
+                       PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.userMapper     = userMapper;
-        this.pwEncoder      = pwEncoder;
+        this.encoder        = encoder;
     }
+
+    /* ---------- CRUD ---------- */
 
     public List<UserDto> getAllUserDtos() {
         return userMapper.toDtoList(userRepository.findAll());
     }
 
-    public UserDto getUserDto(Integer id) {
+    public UserDto getUserDto(String id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User", id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("User", id));
         return userMapper.toDto(user);
     }
 
@@ -46,51 +49,50 @@ public class UserService {
         if (userRepository.existsByUsername(req.username())) {
             throw new UsernameAlreadyExistsException(req.username());
         }
+
         User entity = new User(
                 req.firstName(),
                 req.lastName(),
                 req.username(),
-                pwEncoder.encode(req.password()),
+                encoder.encode(req.password()),          // Klartext bei NoOp
                 UserRole.valueOf(req.userRole())
         );
-        User saved = userRepository.save(entity);
-        return userMapper.toDto(saved);
+        return userMapper.toDto(userRepository.save(entity));
     }
 
-    public UserDto updateUser(Integer id, UpdateUserRequestDto req) {
+    public UserDto updateUser(String id, UpdateUserRequestDto req) {
         User existing = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User", id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("User", id));
 
         existing.setFirstName(req.firstName());
-        existing.setLastName(req.lastName());
-        existing.setUsername(req.username());
+        existing.setLastName (req.lastName());
+        existing.setUsername (req.username());
+
         if (req.password() != null && !req.password().isBlank()) {
-            existing.setPassword(pwEncoder.encode(req.password()));
+            existing.setPassword(encoder.encode(req.password()));
         }
         existing.setUserRole(UserRole.valueOf(req.userRole()));
 
-        User updated = userRepository.save(existing);
-        return userMapper.toDto(updated);
+        return userMapper.toDto(userRepository.save(existing));
     }
 
-    public void deleteUser(Integer id) {
+    public void deleteUser(String id) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException("User", id);
         }
         userRepository.deleteById(id);
     }
-    public Integer login(String username, String password) {
-        // Benutzer mit dem gegebenen Benutzernamen suchen
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Passwort überprüfen
-        if (!user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Invalid password");
+    /* ---------- Login ---------- */
+
+    public String login(String username, String rawPassword) {
+        User u = userRepository.findByUsername(username)
+                .orElseThrow(IllegalArgumentException::new);
+
+        if (!encoder.matches(rawPassword, u.getPassword())) {   // Identity-Vergleich
+            throw new IllegalArgumentException();
         }
-
-        // Erfolg: Rückgabe der Benutzer-ID
-        return user.getId();
+        return u.getId();
     }
-
 }

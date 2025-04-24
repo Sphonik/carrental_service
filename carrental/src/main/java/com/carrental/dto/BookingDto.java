@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record BookingDto(
-        Integer id,
-        Integer userId,
-        Integer carId,
+        String id,
+        String userId,
+        String carId,
         LocalDate startDate,
         LocalDate endDate,
         BigDecimal totalCost,

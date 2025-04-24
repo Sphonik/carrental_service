@@ -1,59 +1,68 @@
+// src/main/java/com/carrental/service/CarService.java
 package com.carrental.service;
+
 import com.carrental.dto.AvailableCarDto;
+import com.carrental.dto.CarDto;
+import com.carrental.exception.CarNotAvailableException;
+import com.carrental.exception.EntityNotFoundException;
 import com.carrental.exception.InvalidBookingRequestException;
+import com.carrental.integration.CurrencyConverterClient;
+import com.carrental.mapper.CarMapper;
+import com.carrental.model.Car;
+import com.carrental.repository.BookingRepository;
+import com.carrental.repository.CarRepository;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import com.carrental.dto.CarDto;
-import com.carrental.exception.CarNotAvailableException;
-import com.carrental.exception.EntityNotFoundException;
-import com.carrental.integration.CurrencyConverterClient;
-import com.carrental.mapper.CarMapper;
-import com.carrental.model.Car;
-import com.carrental.repository.CarRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
 public class CarService {
 
-    private final CarRepository carRepository;
-    private final CarMapper carMapper;
-    private final CurrencyConverterClient currencyConverterClient;
+    private final CarRepository     carRepository;
+    private final BookingRepository bookingRepository;
+    private final CarMapper         carMapper;
+    private final CurrencyConverterClient currencyClient;
 
     public CarService(CarRepository carRepository,
+                      BookingRepository bookingRepository,
                       CarMapper carMapper,
                       CurrencyConverterClient currencyClient) {
-        this.carRepository        = carRepository;
-        this.carMapper            = carMapper;
-        this.currencyConverterClient = currencyClient;
+        this.carRepository      = carRepository;
+        this.bookingRepository  = bookingRepository;
+        this.carMapper          = carMapper;
+        this.currencyClient     = currencyClient;
     }
 
+    /**
+     * Liefert alle aktuell verfügbaren Fahrzeuge, die im Zeitraum [from,to] nicht gebucht sind,
+     * inklusive Preisumrechnung in die gewünschte Währung.
+     */
+    public List<AvailableCarDto> getAvailableBetween(LocalDate from,
+                                                     LocalDate to,
+                                                     String     currency) {
 
-
-    public List<AvailableCarDto> getAvailableBetween(LocalDate from, LocalDate to, String currency) {
         if (from.isAfter(to)) {
             throw new InvalidBookingRequestException("from must be on or before to");
         }
 
-        List<Car> cars = carRepository.findAvailableBetween(from, to);
-        return cars.stream()
-                .map(car -> {
-                    BigDecimal converted = currencyConverterClient.convert(car.getPricePerDay(), currency);
-                    return toAvailableDto(car, converted, currency);
-                })
+        return carRepository.findByAvailableTrue().stream()
+                .filter(car -> !bookingRepository
+                        .existsByCarRentedIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                car.getId(), to, from))
+                .map(car -> mapToDto(car, currency))
                 .toList();
     }
 
-    /** List all cars that are currently available */
+    /** Alle aktuell verfügbaren Autos (ohne Datumsfilter). */
     public List<CarDto> getAvailableCarDtos() {
         return carMapper.toDtoList(carRepository.findByAvailableTrue());
     }
 
-    /** Book a car or throw domain‑specific error */
-    public CarDto bookCar(Long id) {
+    /** Ein Auto buchen → Availability auf false setzen. */
+    public CarDto bookCar(String id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Car", id));
 
@@ -64,57 +73,41 @@ public class CarService {
         return carMapper.toDto(carRepository.save(car));
     }
 
-    /** Return a car or throw 404 / 409 if invalid */
-    public CarDto returnCar(Long id) {
+    /** Auto zurückgeben → Availability auf true setzen. */
+    public CarDto returnCar(String id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Car", id));
 
-        if (car.isAvailable()) {                     // already returned
+        if (car.isAvailable()) {
             throw new CarNotAvailableException(id);
         }
         car.setAvailable(true);
         return carMapper.toDto(carRepository.save(car));
     }
 
+    /** Einzelnes Auto abrufen. */
+    public CarDto getCarById(String id) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Car", id));
+        return carMapper.toDto(car);
+    }
 
-    private AvailableCarDto toAvailableDto(Car car,
-                                           BigDecimal priceConverted,
-                                           String currency) {
+    /* ------------------------------------------------ private helpers ------------------------------------------- */
+
+    private AvailableCarDto mapToDto(Car car, String currency) {
+        BigDecimal converted = currencyClient.convert(car.getPricePerDay(), currency);
         return new AvailableCarDto(
                 car.getId(),
                 car.getMake(),
                 car.getModel(),
                 car.getPricePerDay(),
-                priceConverted.setScale(2, RoundingMode.HALF_UP),
+                converted.setScale(2, RoundingMode.HALF_UP),
                 currency.toUpperCase(),
                 car.getYear(),
                 car.getColor(),
-                car.getFuelType().toString(),
+                car.getFuelType().name(),
                 car.isAutomatic(),
                 car.getPickupLocation()
         );
     }
-    // Neue Methode: Auto nach ID abrufen
-    public CarDto getCarById(Long id) {
-        Car car = carRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Car with ID " + id + " does not exist"));
-
-        // Mappt die Car-Entity auf ein CarDto
-        return new CarDto(
-                car.getId(),
-                car.getMake(),
-                car.getModel(),
-                car.getYear(),
-                car.getColor(),
-                car.getFuelType().toString(),
-                car.isAutomatic(),
-                car.getPricePerDay(),
-                car.getPickupLocation(),
-                car.isAvailable()
-        );
-    }
-
-
 }
-
-

@@ -11,7 +11,7 @@ COPY . .
 COPY .env .
 
 # Expose port for SOAP service
-EXPOSE 80
+EXPOSE 50051
 
 # Start service
 CMD ["python", "currency_converter_service.py"]

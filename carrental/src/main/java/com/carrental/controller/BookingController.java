@@ -36,12 +36,12 @@ public class BookingController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<BookingDto> byUser(@PathVariable Integer userId) {
+    public List<BookingDto> byUser(@PathVariable String userId) {
         return bookingService.getBookingDtosByUser(userId);
     }
 
     @GetMapping("/{id}")
-    public BookingDto getBooking(@PathVariable Integer id) {
+    public BookingDto getBooking(@PathVariable String id) {
         return bookingService.getBookingDto(id);
     }
     @PostMapping
@@ -51,7 +51,7 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBookingById(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteBookingById(@PathVariable String id) {
         bookingService.deleteBookingById(id);
         return ResponseEntity.noContent().build(); // Antwort: 204 No Content
     }

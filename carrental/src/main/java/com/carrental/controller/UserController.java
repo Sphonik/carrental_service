@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable Integer id) {
+    public UserDto getUser(@PathVariable String id) {
         return userService.getUserDto(id);
     }
 
@@ -38,14 +38,14 @@ public class UserController {
 
     @PutMapping("/{id}")
     public UserDto update(
-            @PathVariable Integer id,
+            @PathVariable String id,
             @RequestBody UpdateUserRequestDto req
     ) {
         return userService.updateUser(id, req);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
@@ -54,7 +54,7 @@ public class UserController {
     public LoginResponseDto login(@RequestBody LoginRequestDto loginRequest) {
         try {
             // Verwendet den Benutzernamen und das Passwort für die Authentifizierung
-            Integer userId = userService.login(loginRequest.username(), loginRequest.password());
+            String userId = userService.login(loginRequest.username(), loginRequest.password());
 
             // Rückgabe der userId bei Erfolg
             return new LoginResponseDto(userId);

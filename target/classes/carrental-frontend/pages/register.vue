@@ -7,7 +7,9 @@ import { useRouter } from 'vue-router'
 const { register } = useAuth()
 const router = useRouter()
 
-const email = ref('')
+const firstName = ref('')
+const lastName = ref('')
+const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
@@ -17,7 +19,7 @@ const handleRegister = async () => {
   errorMessage.value = ''
 
   try {
-    await register(email.value, password.value)
+    await register(firstName.value, lastName.value, username.value, password.value)
     router.push('/login')
   } catch (err) {
     errorMessage.value = err.message || 'Registration failed'
@@ -25,6 +27,10 @@ const handleRegister = async () => {
     loading.value = false
   }
 }
+
+definePageMeta({
+  middleware: ['guest']
+})
 </script>
 
 <template>
@@ -39,15 +45,39 @@ const handleRegister = async () => {
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="p-8 border border-gray-700 rounded-lg">
+      <div class="p-8 border border border-gray-100 dark:border-gray-600 shadow-md rounded-lg">
         <form @submit.prevent="handleRegister" class="space-y-6">
           <div>
             <UInput
-              v-model="email"
-              type="email"
-              label="Email"
+              v-model="firstName"
+              type="text"
+              label="First Name"
               required
-              placeholder="name@example.com"
+              placeholder="First Name"
+              class="block w-full"
+              size="lg"
+            />
+          </div>
+
+          <div>
+            <UInput
+              v-model="lastName"
+              type="text"
+              label="Last Name"
+              required
+              placeholder="Last Name"
+              class="block w-full"
+              size="lg"
+            />
+          </div>
+
+          <div>
+            <UInput
+              v-model="username"
+              type="text"
+              label="Username"
+              required
+              placeholder="Username or Email"
               class="block w-full"
               size="lg"
             />
@@ -85,6 +115,7 @@ const handleRegister = async () => {
               :loading="loading"
               block
               size="lg"
+              class="cursor-pointer"
             >
               {{ loading ? 'Registering...' : 'Register' }}
             </UButton>
@@ -94,10 +125,10 @@ const handleRegister = async () => {
         <div class="mt-6">
           <div class="relative">
             <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-700"></div>
+              <div class="w-full border-t border-gray-200 dark:border-gray-600"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="px-2">
+              <span class="px-2 bg-white dark:bg-zinc-900">
                 Already have an account?
               </span>
             </div>

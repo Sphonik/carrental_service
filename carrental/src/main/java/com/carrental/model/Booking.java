@@ -1,53 +1,44 @@
 package com.carrental.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-@Entity
-@Table(name = "bookings")
+@Document("bookings")
+@CompoundIndex(name = "car_date_idx",
+        def  = "{'carRentedId':1,'startDate':1,'endDate':1}")
 public class Booking {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Id
+    private String id;
 
-    /* ------------  JPA‑Beziehungen  ------------ */
-    @ManyToOne(fetch = FetchType.LAZY)          // User ↔ Booking   N:1
-    @JoinColumn(name = "booked_by", nullable = false)
-    private User bookedBy;
+    private String bookedById;
+    private String carRentedId;
 
-    @ManyToOne(fetch = FetchType.LAZY)          // Car  ↔ Booking   N:1
-    @JoinColumn(name = "car_rented", nullable = false)
-    private Car carRented;
-    /* ------------------------------------------- */
-
-    @Column(nullable = false)
     private LocalDate startDate;
-
-    @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalCost;
-
-    @Column(nullable = false, length = 3)
     private String currency;
-
-
 
     public Booking() {}
 
-    public Booking(User bookedBy, Car carRented,
-                   LocalDate startDate, LocalDate endDate,
-                   BigDecimal pricePerDayUsd, String currency) {
-
-        this.bookedBy   = bookedBy;
-        this.carRented  = carRented;
-        this.startDate  = startDate;
-        this.endDate    = endDate;
-        this.currency   = currency;
-        this.totalCost  = calcTotalCost(pricePerDayUsd);
+    public Booking(String bookedById,
+                   String carRentedId,
+                   LocalDate startDate,
+                   LocalDate endDate,
+                   BigDecimal pricePerDayUsd,
+                   String currency) {
+        this.bookedById  = bookedById;
+        this.carRentedId = carRentedId;
+        this.startDate   = startDate;
+        this.endDate     = endDate;
+        this.currency    = currency;
+        this.totalCost   = calcTotalCost(pricePerDayUsd);
     }
 
     private BigDecimal calcTotalCost(BigDecimal pricePerDayUsd) {
@@ -55,58 +46,45 @@ public class Booking {
         return pricePerDayUsd.multiply(BigDecimal.valueOf(days));
     }
 
-    public void setId(Integer id) {
+    public void setCarRentedId(String carRentedId) {
+        this.carRentedId = carRentedId;
+    }
+    public void setId(String id) {
         this.id = id;
     }
-
-    public void setBookedBy(User bookedBy) {
-        this.bookedBy = bookedBy;
+    public void setBookedById(String bookedById) {
+        this.bookedById = bookedById;
     }
-
-    public void setCarRented(Car carRented) {
-        this.carRented = carRented;
-    }
-
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
-
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
-
     public void setTotalCost(BigDecimal totalCost) {
         this.totalCost = totalCost;
     }
-
     public void setCurrency(String currency) {
         this.currency = currency;
     }
-
-    public User getBookedBy() {
-        return bookedBy;
-    }
-
-    public Integer getId() {
+    public String getId() {
         return id;
     }
-
-    public Car getCarRented() {
-        return carRented;
+    public String getBookedById() {
+        return bookedById;
     }
-
+    public String getCarRentedId() {
+        return carRentedId;
+    }
     public LocalDate getStartDate() {
         return startDate;
     }
-
     public LocalDate getEndDate() {
         return endDate;
     }
-
     public BigDecimal getTotalCost() {
         return totalCost;
     }
-
     public String getCurrency() {
         return currency;
     }

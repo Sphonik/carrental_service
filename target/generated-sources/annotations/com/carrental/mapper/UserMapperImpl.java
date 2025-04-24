@@ -1,5 +1,6 @@
 package com.carrental.mapper;
 
+import com.carrental.dto.CreateUserRequestDto;
 import com.carrental.dto.UserDto;
 import com.carrental.model.User;
 import com.carrental.model.UserRole;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-20T17:11:48+0200",
+    date = "2025-04-24T19:33:04+0200",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 22.0.2 (Amazon.com Inc.)"
 )
 @Component
@@ -22,7 +23,7 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        Integer id = null;
+        String id = null;
         String firstName = null;
         String lastName = null;
         String username = null;
@@ -72,5 +73,22 @@ public class UserMapperImpl implements UserMapper {
         }
 
         return list;
+    }
+
+    @Override
+    public User toEntity(CreateUserRequestDto dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        User user = new User();
+
+        user.setFirstName( dto.firstName() );
+        user.setLastName( dto.lastName() );
+        user.setUsername( dto.username() );
+
+        user.setUserRole( UserRole.valueOf(dto.userRole()) );
+
+        return user;
     }
 }
