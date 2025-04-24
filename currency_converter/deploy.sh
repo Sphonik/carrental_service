@@ -4,7 +4,7 @@
 ACR_NAME="carrental"
 ACR_USERNAME="carrental"
 ACR_PASSWORD="PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj"
-APP_NAME="part1-carrental-currency-converter-soap"
+APP_NAME="part2-carrental-currency-converter-grpc"
 RESOURCE_GROUP="se-carrental"
 APP_PLAN_NAME="app-service-plan"
 

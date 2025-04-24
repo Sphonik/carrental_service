@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 # Set variables
-APP_NAME="part1-currency-converter-soap"
+APP_NAME="part2-currency-converter-grpc"
 PORT="50051"
 
 echo
@@ -26,7 +26,7 @@ docker stop "$APP_NAME" 2>/dev/null
 docker rm "$APP_NAME" 2>/dev/null
 
 echo "Starting new container..."
-if ! docker run -d --name "$APP_NAME" -p "$PORT:80" "$APP_NAME:latest"; then
+if ! docker run -d --name "$APP_NAME" -p "$PORT:$PORT" "$APP_NAME:latest"; then
     echo "Error: Container start failed"
     exit 1
 fi
