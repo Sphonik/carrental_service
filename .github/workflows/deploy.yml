@@ -22,11 +22,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Login to Azure Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} -u ${{ secrets.ACR_USERNAME }} --password-stdin
 
       - name: Build and push Backend
         run: |
@@ -52,7 +49,7 @@ jobs:
         run: |
           az webapp config container set \
             --name $WEBAPP_NAME_BACKEND \
-            --resource-group $RESOURCE_GROUP \git 
+            --resource-group $RESOURCE_GROUP \
             --container-image-name $ACR_LOGIN_SERVER/carrental-backend \
             --container-registry-url https://$ACR_LOGIN_SERVER \
             --container-registry-user $ACR_USERNAME \
