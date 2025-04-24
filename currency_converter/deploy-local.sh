@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 
 # Set variables
 APP_NAME="part1-currency-converter-soap"
-PORT="8080"
+PORT="50051"
 
 echo
 echo "[1/3] Starting local deployment process..."

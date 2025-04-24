@@ -1,6 +1,6 @@
-spyne==2.14.0
-lxml==4.9.3
+grpcio==1.56.0
+grpcio-tools==1.56.0
 requests==2.31.0
-pytz==2024.1
-Werkzeug==3.0.1
+lxml==4.9.3
+pytz==2023.3
 python-dotenv==1.0.0

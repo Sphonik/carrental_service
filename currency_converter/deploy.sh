@@ -97,7 +97,7 @@ az webapp config container set \
 az webapp config appsettings set \
     --resource-group "$RESOURCE_GROUP" \
     --name "$APP_NAME" \
-    --settings WEBSITES_PORT=80
+    --settings WEBSITES_PORT=50051
 
 if [ $? -ne 0 ]; then
     echo "Error: Web App creation failed"
