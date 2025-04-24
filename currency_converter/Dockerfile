@@ -2,16 +2,15 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install Python dependencies
+# Python bağımlılıklarını yükle
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy service code
+# Uygulama dosyalarını kopyala
 COPY . .
-COPY .env .
 
-# Expose port for SOAP service
+# Portu aç
 EXPOSE 80
 
-# Start service
+# Flask/Spyne servisini başlat
 CMD ["python", "currency_converter_service.py"]
