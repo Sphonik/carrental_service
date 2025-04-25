@@ -26,6 +26,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/carrental
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin123
+      CURRENCY_CONVERTER_URL: http://currency_converter:80/?wsdl
     networks:
       - carrental-net
 
