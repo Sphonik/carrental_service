@@ -6,13 +6,13 @@ on:
       - main
 
 env:
-  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
-  ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-  RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-  WEBAPP_NAME_BACKEND: ${{ secrets.WEBAPP_NAME_BACKEND }}
-  WEBAPP_NAME_FRONTEND: ${{ secrets.WEBAPP_NAME_FRONTEND }}
-  WEBAPP_NAME_CONVERTER: ${{ secrets.WEBAPP_NAME_CONVERTER }}
+  ACR_LOGIN_SERVER: carrental.azurecr.io
+  ACR_USERNAME: carrental
+  ACR_PASSWORD: PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj
+  RESOURCE_GROUP: se-carrental
+  WEBAPP_NAME_BACKEND: carrental-backend-app
+  WEBAPP_NAME_FRONTEND: carrental-frontend-app
+  WEBAPP_NAME_CONVERTER: currency-converter-app
 
 jobs:
   build-and-deploy:
