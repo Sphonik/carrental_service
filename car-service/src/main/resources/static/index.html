@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <title>Car-Rental Test Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col gap-6 p-6">
+<h1 class="text-2xl font-bold mb-2">Car Service</h1>
+
+<!-- 🔑 Login -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">🔑 Login</h2>
+    <div class="flex flex-wrap gap-2 items-end">
+        <label class="flex flex-col">
+            <span class="text-sm">Username</span>
+            <input id="user" class="input">
+        </label>
+        <label class="flex flex-col">
+            <span class="text-sm">Password</span>
+            <input id="pass" type="password" class="input">
+        </label>
+        <button id="btn-login" class="btn">Login</button>
+        <span id="login-state" class="ml-2 text-sm"></span>
+    </div>
+</section>
+
+<!-- 🚗 Cars -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">🚗 Cars</h2>
+    <div class="flex flex-wrap items-end gap-2">
+        <label class="flex flex-col">
+            <span class="text-sm">From</span>
+            <input id="from" type="date" class="input">
+        </label>
+        <label class="flex flex-col">
+            <span class="text-sm">To</span>
+            <input id="to" type="date" class="input">
+        </label>
+        <label class="flex flex-col">
+            <span class="text-sm">Currency</span>
+            <input id="currency" value="USD" class="input w-24">
+        </label>
+        <button id="btn-search" class="btn">Search</button>
+        <button id="btn-allcars" class="btn-secondary">All</button>
+    </div>
+</section>
+
+<!-- 📑 Book / Return -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">📑 Book / Return</h2>
+    <div class="flex flex-wrap items-end gap-2">
+        <label class="flex flex-col">
+            <span class="text-sm">Car ID</span>
+            <input id="carId" class="input w-52">
+        </label>
+        <button id="btn-book" class="btn">Book</button>
+        <button id="btn-return" class="btn-secondary">Return</button>
+    </div>
+</section>
+
+<!-- 📋 Bookings -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">📋 Bookings</h2>
+    <div class="flex flex-wrap items-end gap-2">
+        <button id="btn-bookings" class="btn">All</button>
+        <label class="flex flex-col">
+            <span class="text-sm">User ID</span>
+            <input id="bookUserId" class="input w-52">
+        </label>
+        <button id="btn-bookings-user" class="btn-secondary">By User</button>
+    </div>
+</section>
+
+<!-- 👤 Users -->
+<section class="p-4 bg-white rounded-xl shadow-md">
+    <h2 class="text-xl font-semibold mb-2">👤 Users</h2>
+    <button id="btn-users" class="btn">All Users (Admin)</button>
+</section>
+
+<!-- 🖥️ Output -->
+<section class="p-4 bg-white rounded-xl shadow-md overflow-auto">
+    <h2 class="text-xl font-semibold mb-2">🖥️ Response</h2>
+    <pre id="out" class="whitespace-pre-wrap text-sm"></pre>
+</section>
+
+<style>
+    .input { @apply border rounded-lg px-2 py-1 shadow-sm;}
+    .btn { @apply bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-1 shadow;}
+    .btn-secondary { @apply bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-4 py-1 shadow;}
+</style>
+
+<script>
+    /* ---------- global auth object ---------- */
+    window.auth = { user:"", pass:"" };
+
+    /* ---------- helper ---------- */
+    const out = document.getElementById("out");
+    const show = d => out.textContent = JSON.stringify(d,null,2);
+
+    const authHeaders = () =>
+        window.auth.user
+            ? { Authorization: "Basic " + btoa(window.auth.user + ":" + window.auth.pass) }
+            : {};
+
+    async function api(path, opts={}) {
+        const res = await fetch(path, {
+            ...opts,
+            headers: { "Content-Type":"application/json", ...authHeaders(), ...opts.headers },
+            credentials: "include"
+        });
+        const txt = await res.text();
+        try { return JSON.parse(txt); } catch { return txt || res.status; }
+    }
+
+    /* ---------- login ---------- */
+    document.getElementById("btn-login").onclick = async () => {
+        const user = document.getElementById("user").value;
+        const pass = document.getElementById("pass").value;
+        if(!user || !pass) return alert("enter credentials");
+
+        const res = await fetch("/api/v1/users/login", {
+            method:"POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ username:user, password:pass })
+        });
+
+        if (res.ok) {
+            window.auth = { user, pass };
+            document.getElementById("login-state").textContent = "🟢 logged in";
+            show(await res.json());
+        } else {
+            window.auth = { user:"", pass:"" };
+            document.getElementById("login-state").textContent = "🔴 failed";
+            show(await res.text());
+        }
+    };
+
+    /* ---------- cars ---------- */
+    document.getElementById("btn-search").onclick = async () => {
+        const f = from.value, t = to.value, cur = currency.value || "USD";
+        if(!f||!t) return alert("dates missing");
+        show(await api(`/api/v1/cars?from=${f}&to=${t}&currency=${cur}`));
+    };
+    document.getElementById("btn-allcars").onclick = async () =>
+        show(await api("/api/v1/cars"));
+
+    document.getElementById("btn-book").onclick = async () =>
+        show(await api(`/api/v1/cars/book/${carId.value}`, {method:"POST"}));
+    document.getElementById("btn-return").onclick = async () =>
+        show(await api(`/api/v1/cars/return/${carId.value}`, {method:"POST"}));
+
+    /* ---------- bookings ---------- */
+    btn_bookings.onclick = async () => show(await api("/api/v1/bookings"));
+    btn_bookings_user.onclick = async () =>
+        show(await api(`/api/v1/bookings/user/${bookUserId.value}`));
+
+    /* ---------- users ---------- */
+    btn_users.onclick = async () => show(await api("/api/v1/users"));
+</script>
+</body>
+</html>
