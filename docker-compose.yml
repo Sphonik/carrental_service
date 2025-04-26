@@ -40,6 +40,8 @@ services:
       - "3000:3000"
     environment:
       API_BASE_URL: http://backend:8080/api/v1
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD: master
     networks:
       - carrental-net
 

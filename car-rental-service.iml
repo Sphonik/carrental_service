@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/carrental/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/carrental/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/carrental/src" isTestSource="false" />
     </content>
   </component>
   <component name="FacetManager">
