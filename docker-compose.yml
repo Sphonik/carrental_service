@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+
+
+  backend:
+    build:
+      context: ./carrental
+    ports:
+      - "8080:8080"
+    environment:
+      CURRENCY_CONVERTER_URL: http://currency-converter:5000/?wsdl
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+    networks:
+      - carrental-net
+
+  frontend:
+    build:
+      context: ./carrental-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    environment:
+      API_BASE_URL: http://backend:8080/api/v1
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD: master
+    networks:
+      - carrental-net
+
+  currency-converter:
+    build:
+      context: ./currency_converter
+    ports:
+      - "5000:80"
+    environment:
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD: master
+    networks:
+      - carrental-net
+
+volumes:
+  pgdata:
+
+networks:
+  carrental-net:
+    driver: bridge

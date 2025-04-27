@@ -1,0 +1,61 @@
+name: Build, Push & Restart All Services
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ACR_LOGIN_SERVER: carrental.azurecr.io
+  ACR_USERNAME: carrental
+  ACR_PASSWORD: PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj
+  AZURE_ACCESS_TOKEN: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuYXp1cmUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNmZiZTY3YjktODhkOS00MGI3LWFmYzgtYzU1ODI5MWZjZTg0LyIsImlhdCI6MTc0NTU3Mjk2NywibmJmIjoxNzQ1NTcyOTY3LCJleHAiOjE3NDU1NzgzNTIsImFjciI6IjEiLCJhZ2VHcm91cCI6IjQiLCJhaW8iOiJBWFFBaS84WkFBQUFMUU9YeVBaTFNBUWgwMS9PK0pSUGVHNXV5MXJSaEJZWE8xbjcwUGlSRlVEcHloTGl1RCtLc2J3dXM0OSswR25hUERwSkpqOXRMZG1jWFdRalA0MmRuR1Yvazk4eUZRY3NQSXlyRFZ4TVdYWDNXSjR1VStzMFNUQm1kVk8xcG9zNlREYm1uR3cyNGtWanorR0xUT2w2eWc9PSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwaWQiOiIwNGIwNzc5NS04ZGRiLTQ2MWEtYmJlZS0wMmY5ZTFiZjdiNDYiLCJhcHBpZGFjciI6IjAiLCJmYW1pbHlfbmFtZSI6IktvbnVrIiwiZ2l2ZW5fbmFtZSI6IkZhZGltZSIsImdyb3VwcyI6WyIzYTRiMDhjZC0yOTRhLTQxYzMtYWEwYy0wMTY1NDBiNjFmNjYiLCJlOTY1NThlOC1mZWQzLTQxNTUtODEyZi0xYjQ2YmFlZjhhMTkiXSwiaWR0eXAiOiJ1c2VyIiwiaXBhZGRyIjoiODQuMTE1LjIzNC4zMCIsIm5hbWUiOiJLb251ayBGYWRpbWUiLCJvaWQiOiI0YTQ3NjJmMi0zNmFiLTQ4YTEtOTEwYS1mZTgwMTg2OGQ3ZTciLCJwdWlkIjoiMTAwMzIwMDA2MTBDN0Q1MSIsInJoIjoiMS5BUWtBdVdlLWI5bUl0MEN2eU1WWUtSX09oRVpJZjNrQXV0ZFB1a1Bhd2ZqMk1CTUpBR2tKQUEuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic2lkIjoiMDA0MDQ1MzktNmRmOS1jZDM2LWNkYTctZDkwY2JmOGIwNzM5Iiwic3ViIjoiWnVtZVBjcGE5XzEtWjVCMGNRS25JYjZuZjAydTlPSUFUWHpzX043RjRybyIsInRpZCI6IjZmYmU2N2I5LTg4ZDktNDBiNy1hZmM4LWM1NTgyOTFmY2U4NCIsInVuaXF1ZV9uYW1lIjoiZmFkaW1lLmtvbnVrQHN0dWQuZmgtY2FtcHVzd2llbi5hYy5hdCIsInVwbiI6ImZhZGltZS5rb251a0BzdHVkLmZoLWNhbXB1c3dpZW4uYWMuYXQiLCJ1dGkiOiJmTjQzQW80c1QwbURfR05hclZKWUFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2lkcmVsIjoiMSAxOCIsInhtc190Y2R0IjoxMzYxNDExMDYyfQ.O6KLXmQDSA6hIN_LTMJk-UTtMvTg5KrSS1JkRXGbKwPRHbeh4pztPFPafwmNLGfdZt1NjzfUcH5RFbRK7Mg7Mdvfq0SAk480Ec9S6E5gVzKFEflA4FQnQX1ZXmeogMsimMbPhhhBwn1s283f5S_7v3MJnx0hzfgxp7FdbgOfwpzOMAkIozMDJXO8brEt6epBkUkuRF49hTmKDhvdXaIbT-8YvrZXk7QbjSa8txco6uZFTDzFl0DRGOhMPyvYKsDrcnJbGQcTo8a80Pi1mzDSzl1TlB3eqi7ID_SkOf9Mv4YGhi9c8-SSBig8mT58oqqsZbnHO1og2lQFHQAn-PQHhw
+
+  # Web Apps için REST API restart URL'leri
+  RESTART_BACKEND: https://management.azure.com/subscriptions/1723e912-9a8d-4133-aae3-24663cc42f92/resourceGroups/se-carrental/providers/Microsoft.Web/sites/carrental-backend-app/restart?api-version=2022-03-01
+  RESTART_FRONTEND: https://management.azure.com/subscriptions/1723e912-9a8d-4133-aae3-24663cc42f92/resourceGroups/se-carrental/providers/Microsoft.Web/sites/carrental-frontend-app/restart?api-version=2022-03-01
+  RESTART_CONVERTER: https://management.azure.com/subscriptions/1723e912-9a8d-4133-aae3-24663cc42f92/resourceGroups/se-carrental/providers/Microsoft.Web/sites/currency-converter-app/restart?api-version=2022-03-01
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Docker Login to ACR
+        run: echo "$ACR_PASSWORD" | docker login $ACR_LOGIN_SERVER -u $ACR_USERNAME --password-stdin
+
+      - name: Build & Push Backend
+        run: |
+          docker build -t $ACR_LOGIN_SERVER/carrental-backend ./carrental
+          docker push $ACR_LOGIN_SERVER/carrental-backend
+
+      - name: Build & Push Frontend
+        run: |
+          docker build -t $ACR_LOGIN_SERVER/carrental-frontend ./carrental-frontend
+          docker push $ACR_LOGIN_SERVER/carrental-frontend
+
+      - name: Build & Push Currency Converter
+        run: |
+          docker build -t $ACR_LOGIN_SERVER/currency-converter ./currency_converter
+          docker push $ACR_LOGIN_SERVER/currency-converter
+
+      - name: Restart Backend Web App
+        run: |
+          curl -X POST "$RESTART_BACKEND" \
+            -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" \
+            -H "Content-Length: 0"
+
+      - name: Restart Frontend Web App
+        run: |
+          curl -X POST "$RESTART_FRONTEND" \
+            -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" \
+            -H "Content-Length: 0"
+
+      - name: Restart Currency Converter Web App
+        run: |
+          curl -X POST "$RESTART_CONVERTER" \
+            -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" \
+            -H "Content-Length: 0"
