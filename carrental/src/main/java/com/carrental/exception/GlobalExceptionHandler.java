@@ -9,10 +9,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
+/**
+ * Global exception handler that intercepts and processes exceptions thrown by controllers,
+ * mapping them to standardized {@link ErrorResponse} payloads.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** 404 – entity not found */
+    /**
+     * Handles exceptions of type {@link EntityNotFoundException}.
+     *
+     * @param ex      the exception indicating the missing entity
+     * @param request the HTTP request during which the exception was raised
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with status 404 (Not Found)
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(
             EntityNotFoundException ex,
@@ -29,7 +39,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    /** 409 – username already exists */
+    /**
+     * Handles exceptions of type {@link UsernameAlreadyExistsException}.
+     *
+     * @param ex      the exception indicating a username conflict
+     * @param request the HTTP request during which the exception was raised
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with status 409 (Conflict)
+     */
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUsernameConflict(
             UsernameAlreadyExistsException ex,
@@ -46,7 +62,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    /** 409 – car already booked */
+    /**
+     * Handles exceptions of type {@link CarNotAvailableException}.
+     *
+     * @param ex      the exception indicating an unavailable car
+     * @param request the HTTP request during which the exception was raised
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with status 409 (Conflict)
+     */
     @ExceptionHandler(CarNotAvailableException.class)
     public ResponseEntity<ErrorResponse> handleCarUnavailable(
             CarNotAvailableException ex,
@@ -63,7 +85,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    /** 400 – bad request / validation */
+    /**
+     * Handles validation and bad request exceptions.
+     *
+     * @param ex      the exception indicating invalid request data
+     * @param request the HTTP request during which the exception was raised
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with status 400 (Bad Request)
+     */
     @ExceptionHandler({InvalidBookingRequestException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(
             Exception ex,
@@ -80,7 +108,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    /** 503 – currency‐service unavailable */
+    /**
+     * Handles exceptions of type {@link CurrencyConversionException}.
+     *
+     * @param ex      the exception indicating a failure in currency conversion
+     * @param request the HTTP request during which the exception was raised
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with status 503 (Service Unavailable)
+     */
     @ExceptionHandler(CurrencyConversionException.class)
     public ResponseEntity<ErrorResponse> handleCurrencyError(
             CurrencyConversionException ex,
@@ -97,7 +131,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
-    /** 500 – fallback */
+    /**
+     * Handles all uncaught exceptions as a fallback.
+     *
+     * @param ex      the exception that was not otherwise handled
+     * @param request the HTTP request during which the exception was raised
+     * @return a {@link ResponseEntity} containing an {@link ErrorResponse} with status 500 (Internal Server Error)
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(
             Exception ex,
