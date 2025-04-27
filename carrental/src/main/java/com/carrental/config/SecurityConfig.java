@@ -15,61 +15,103 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import java.util.List;
 
+
+
+
+/**
+ * Security configuration for the Car Rental application.
+ * <p>
+ * Configures authentication, password encoding, and HTTP security rules.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserRepository userRepo;
 
+    /**
+     * Constructs the SecurityConfig with the given UserRepository.
+     *
+     * @param userRepo repository for accessing user data
+     */
     public SecurityConfig(UserRepository userRepo) {
         this.userRepo = userRepo;
     }
 
+    /**
+     * Provides a {@link UserDetailsService} that loads user-specific data.
+     * <p>
+     * Retrieves a {@link User} by username and maps its role to a {@link SimpleGrantedAuthority}.
+     *
+     * @return a configured UserDetailsService
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
             User u = userRepo.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            // map your roles to GrantedAuthority
-            SimpleGrantedAuthority auth = new SimpleGrantedAuthority("ROLE_" + u.getUserRole().name());
+            SimpleGrantedAuthority authority =
+                    new SimpleGrantedAuthority("ROLE_" + u.getUserRole().name());
             return new org.springframework.security.core.userdetails.User(
                     u.getUsername(),
                     u.getPassword(),
-                    List.of(auth)
+                    List.of(authority)
             );
         };
     }
 
+    /**
+     * Provides a {@link PasswordEncoder}.
+     * <p>
+     * Note: Currently uses {@link NoOpPasswordEncoder} for simplicity.
+     * Replace with {@link BCryptPasswordEncoder} after migration.
+     *
+     * @return a PasswordEncoder instance
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // for a real app you’d switch this to BCryptPasswordEncoder
         return NoOpPasswordEncoder.getInstance();
-        //return new BCryptPasswordEncoder(/* strength: 10 */); TODO add it after migration
     }
 
+    /**
+     * Configures the {@link DaoAuthenticationProvider} with the
+     * {@link UserDetailsService} and {@link PasswordEncoder}.
+     *
+     * @return the configured DaoAuthenticationProvider
+     */
     @Bean
     public DaoAuthenticationProvider authProvider() {
-        DaoAuthenticationProvider p = new DaoAuthenticationProvider();
-        p.setUserDetailsService(userDetailsService());
-        p.setPasswordEncoder(passwordEncoder());
-        return p;
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
+    /**
+     * Configures the HTTP security filter chain.
+     * <p>
+     * Disables CSRF, enables HTTP Basic authentication, and defines authorization rules:
+     * <ul>
+     *   <li>Allow POST requests to <code>/api/v1/users</code> for user registration.</li>
+     *   <li>Require authentication for DELETE requests to <code>/bookings/**</code>.</li>
+     *   <li>Permit all for static resources (<code>/static/**</code>), root (<code>/</code>), and <code>/index.html</code>.</li>
+     *   <li>Require authentication for all other requests.</li>
+     * </ul>
+     *
+     * @param http the HttpSecurity to configure
+     * @return the built SecurityFilterChain
+     * @throws Exception if an error occurs while building the filter chain
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        // 1) Erlaube das Anlegen neuer User
                         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-                        // 2) Deine bisherigen Freigaben
-                        .requestMatchers(HttpMethod.DELETE, "/bookings/**").authenticated() // Nur für Admins
-
+                        .requestMatchers(HttpMethod.DELETE, "/bookings/**").authenticated()
                         .requestMatchers("/static/**", "/", "/index.html").permitAll()
-                        // 3) alles andere bleibt geschützt
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());
