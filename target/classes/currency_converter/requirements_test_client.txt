@@ -1,0 +1,7 @@
+spyne==2.14.0
+zeep==4.2.1
+requests==2.31.0
+lxml==5.1.0
+pytz==2024.1
+werkzeug==3.0.1
+
