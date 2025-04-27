@@ -1,10 +1,14 @@
 package carbookingservice.integration;
 
 import carbookingservice.exception.CurrencyConversionException;
-import currencyconverter.CurrencyConverterGrpc;
 import currencyconverter.ConversionRequest;
 import currencyconverter.ConversionResponse;
-import io.grpc.*;
+import currencyconverter.CurrencyConverterGrpc;
+import io.grpc.ClientInterceptor;
+import io.grpc.ClientInterceptors;
+import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +20,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * gRPC-Client für den Currency-Converter-Service.<br>
+ * • Authentifizierung via Basic-Auth-Header<br>
+ * • Deadline wird **pro Aufruf** gesetzt – kein „abgelaufener“ Stub mehr
+ */
 @Component
 public class CurrencyConverterClient {
 
@@ -23,7 +32,8 @@ public class CurrencyConverterClient {
             Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
 
     private final ManagedChannel channel;
-    private final CurrencyConverterGrpc.CurrencyConverterBlockingStub stub;
+    private final CurrencyConverterGrpc.CurrencyConverterBlockingStub baseStub;
+    private final long timeoutMs;
 
     public CurrencyConverterClient(
             @Value("${currency.grpc.host}") String host,
@@ -32,43 +42,59 @@ public class CurrencyConverterClient {
             @Value("${currency.grpc.password}") String pwd,
             @Value("${currency.grpc.timeout-ms:5000}") long timeoutMs) {
 
-        /* 1) Grund-Channel */
+        /* 1) Channel aufbauen */
         this.channel = NettyChannelBuilder.forAddress(host, port)
-                .usePlaintext()   // TLS erst aktivieren, wenn dein Server es kann
+                .enableRetry()            // optional, aber empfehlenswert
+                .maxRetryAttempts(3)
+                .usePlaintext()           // TODO: useTransportSecurity()
                 .build();
 
         /* 2) Auth-Header vorbereiten */
         String token = Base64.getEncoder()
-                .encodeToString((user + ":" + pwd).getBytes(StandardCharsets.UTF_8));
+                .encodeToString((user + ":" + pwd)
+                        .getBytes(StandardCharsets.UTF_8));
+
         Metadata meta = new Metadata();
         meta.put(AUTH_HEADER, "Basic " + token);
 
-        ClientInterceptor auth =
+        ClientInterceptor authInterceptor =
                 MetadataUtils.newAttachHeadersInterceptor(meta);
 
-        /* 3) Stub mit Deadline + Header-Interceptor */
-        this.stub = CurrencyConverterGrpc.newBlockingStub(
-                        ClientInterceptors.intercept(channel, auth))
-                .withDeadlineAfter(timeoutMs, TimeUnit.MILLISECONDS);
+        /* 3) Basis-Stub mit fest verdrahtetem Interceptor */
+        this.baseStub = CurrencyConverterGrpc
+                .newBlockingStub(ClientInterceptors.intercept(channel, authInterceptor));
+
+        this.timeoutMs = timeoutMs;
     }
 
-    /** Konvertiert **USD → toCurrency**. */
+    /**
+     * Konvertiert einen USD-Betrag in die gewünschte Zielwährung.
+     *
+     * @throws CurrencyConversionException bei Netzwerk- oder Serverfehlern
+     */
     public BigDecimal convert(BigDecimal amountUsd, String toCurrency) {
         if ("USD".equalsIgnoreCase(toCurrency)) {
             return amountUsd;
         }
-        ConversionRequest req = ConversionRequest.newBuilder()
-                .setAmount(amountUsd != null ? amountUsd.doubleValue() : 0.0)
-                .setToCurrency(toCurrency != null ? toCurrency.toUpperCase() : "USD")
+
+        ConversionRequest request = ConversionRequest.newBuilder()
+                .setAmount(amountUsd.doubleValue())
+                .setToCurrency(toCurrency.toUpperCase())
                 .build();
+
+        /* 4) Deadline relativ pro Aufruf – verhindert „sofort abgelaufen“ */
+        CurrencyConverterGrpc.CurrencyConverterBlockingStub stub =
+                baseStub.withDeadlineAfter(timeoutMs, TimeUnit.MILLISECONDS);
+
         try {
-            ConversionResponse rsp = stub.convertCurrency(req);
-            return BigDecimal.valueOf(rsp.getConvertedAmount());
+            ConversionResponse response = stub.convertCurrency(request);
+            return BigDecimal.valueOf(response.getConvertedAmount());
         } catch (StatusRuntimeException e) {
-            throw new CurrencyConversionException("gRPC call failed: " + e.getStatus(), e);
+            throw new CurrencyConversionException("Currency conversion failed: " + e.getStatus(), e);
         }
     }
 
+    /** Channel sauber schließen (Spring ruft diese Methode beim Shutdown auf). */
     @PreDestroy
     public void shutdown() throws InterruptedException {
         channel.shutdownNow().awaitTermination(3, TimeUnit.SECONDS);
