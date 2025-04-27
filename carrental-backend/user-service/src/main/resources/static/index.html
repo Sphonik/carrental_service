@@ -25,50 +25,28 @@
     </div>
 </section>
 
-<!-- 🚗 Cars -->
+<!-- 👤 Add User -->
 <section class="p-4 bg-white rounded-xl shadow-md">
-    <h2 class="text-xl font-semibold mb-2">🚗 Cars</h2>
-    <div class="flex flex-wrap items-end gap-2">
+    <h2 class="text-xl font-semibold mb-2">👤 Add User</h2>
+    <div class="flex flex-wrap gap-2 items-end">
         <label class="flex flex-col">
-            <span class="text-sm">From</span>
-            <input id="from" type="date" class="input">
+            <span class="text-sm">First</span>
+            <input id="firstName" class="input">
         </label>
         <label class="flex flex-col">
-            <span class="text-sm">To</span>
-            <input id="to" type="date" class="input">
+            <span class="text-sm">Last</span>
+            <input id="lastName" class="input">
         </label>
         <label class="flex flex-col">
-            <span class="text-sm">Currency</span>
-            <input id="currency" value="USD" class="input w-24">
+            <span class="text-sm">Username</span>
+            <input id="reg-user" class="input">
         </label>
-        <button id="btn-search" class="btn">Search</button>
-        <button id="btn-allcars" class="btn-secondary">All</button>
-    </div>
-</section>
-
-<!-- 📑 Book / Return -->
-<section class="p-4 bg-white rounded-xl shadow-md">
-    <h2 class="text-xl font-semibold mb-2">📑 Book / Return</h2>
-    <div class="flex flex-wrap items-end gap-2">
         <label class="flex flex-col">
-            <span class="text-sm">Car ID</span>
-            <input id="carId" class="input w-52">
+            <span class="text-sm">Password</span>
+            <input id="reg-pass" type="password" class="input">
         </label>
-        <button id="btn-book" class="btn">Book</button>
-        <button id="btn-return" class="btn-secondary">Return</button>
-    </div>
-</section>
-
-<!-- 📋 Bookings -->
-<section class="p-4 bg-white rounded-xl shadow-md">
-    <h2 class="text-xl font-semibold mb-2">📋 Bookings</h2>
-    <div class="flex flex-wrap items-end gap-2">
-        <button id="btn-bookings" class="btn">All</button>
-        <label class="flex flex-col">
-            <span class="text-sm">User ID</span>
-            <input id="bookUserId" class="input w-52">
-        </label>
-        <button id="btn-bookings-user" class="btn-secondary">By User</button>
+        <button id="btn-register" class="btn">Register</button>
+        <span id="register-state" class="ml-2 text-sm"></span>
     </div>
 </section>
 
@@ -136,27 +114,40 @@
         }
     };
 
-    /* ---------- cars ---------- */
-    document.getElementById("btn-search").onclick = async () => {
-        const f = from.value, t = to.value, cur = currency.value || "USD";
-        if(!f||!t) return alert("dates missing");
-        show(await api(`/api/v1/cars?from=${f}&to=${t}&currency=${cur}`));
+    /* ---------- register ---------- */
+    document.getElementById("btn-register").onclick = async () => {
+        const first = document.getElementById("firstName").value;
+        const last = document.getElementById("lastName").value;
+        const user = document.getElementById("reg-user").value;
+        const pass = document.getElementById("reg-pass").value;
+        if(!first || !last || !user || !pass) return alert("enter registration information");
+        console.log(first, last, user, pass);
+
+        const res = await fetch("/api/v1/users", {
+            method:"POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ firstName: first, lastName: last, username:user, password:pass, userRole: "USER" })
+        });
+
+        if (res.ok) {
+            window.auth = { user, pass };
+            document.getElementById("register-state").textContent = "🟢 registered";
+            show(await res.json());
+        } else {
+            window.auth = { user:"", pass:"" };
+            document.getElementById("register-state").textContent = "🔴 failed";
+            show(await res.text());
+        }
     };
-    document.getElementById("btn-allcars").onclick = async () =>
-        show(await api("/api/v1/cars"));
-
-    document.getElementById("btn-book").onclick = async () =>
-        show(await api(`/api/v1/cars/book/${carId.value}`, {method:"POST"}));
-    document.getElementById("btn-return").onclick = async () =>
-        show(await api(`/api/v1/cars/return/${carId.value}`, {method:"POST"}));
-
-    /* ---------- bookings ---------- */
-    btn_bookings.onclick = async () => show(await api("/api/v1/bookings"));
-    btn_bookings_user.onclick = async () =>
-        show(await api(`/api/v1/bookings/user/${bookUserId.value}`));
 
     /* ---------- users ---------- */
-    btn_users.onclick = async () => show(await api("/api/v1/users"));
+    document.getElementById("btn-users").onclick = async () => {
+        const res = await fetch("/api/v1/users", {
+            method:"GET",
+            headers: { "Content-Type":"application/json" }
+        });
+        show(await res.json());
+    }
 </script>
 </body>
 </html>

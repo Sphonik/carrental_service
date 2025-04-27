@@ -25,13 +25,16 @@ public class UserService {
     private final UserRepository  userRepository;
     private final UserMapper      userMapper;
     private final PasswordEncoder encoder;   // hier: NoOpPasswordEncoder
+    private final UserEventPublisher publisher;
 
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
-                       PasswordEncoder encoder) {
+                       PasswordEncoder encoder,
+                       UserEventPublisher publisher) {
         this.userRepository = userRepository;
         this.userMapper     = userMapper;
         this.encoder        = encoder;
+        this.publisher      = publisher;
     }
 
     /* ---------- CRUD ---------- */
@@ -59,7 +62,9 @@ public class UserService {
                 encoder.encode(req.password()),          // Klartext bei NoOp
                 UserRole.valueOf(req.userRole())
         );
-        return userMapper.toDto(userRepository.save(entity));
+        User savedUser = userRepository.save(entity);
+        publisher.publishUserCreated(savedUser.getId());  // Publish message to RabbitMQ
+        return userMapper.toDto(savedUser);
     }
 
     public UserDto updateUser(String id, UpdateUserRequestDto req) {
@@ -76,7 +81,9 @@ public class UserService {
         }
         existing.setUserRole(UserRole.valueOf(req.userRole()));
 
-        return userMapper.toDto(userRepository.save(existing));
+        User updatedUser = userRepository.save(existing);
+        publisher.publishUserUpdated(updatedUser.getId()); // Publish update message
+        return userMapper.toDto(updatedUser);
     }
 
     public void deleteUser(String id) {
@@ -84,6 +91,7 @@ public class UserService {
             throw new EntityNotFoundException("User", id);
         }
         userRepository.deleteById(id);
+        publisher.publishUserDeleted(id);  // Publish delete message
     }
 
     /* ---------- Login ---------- */
