@@ -15,7 +15,8 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      googleMapsApiKey: 'AIzaSyBjQ70oYqgMlSWvF1eA31arh6-FdxaJloY'
+      googleMapsApiKey: 'AIzaSyBjQ70oYqgMlSWvF1eA31arh6-FdxaJloY',
+      apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8080/api/v1',
     }
   }
 })
