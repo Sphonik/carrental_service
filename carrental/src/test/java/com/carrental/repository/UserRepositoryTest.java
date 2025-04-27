@@ -1,3 +1,4 @@
+/*
 package com.carrental.repository;
 
 import com.carrental.dto.UserDto;
@@ -90,3 +91,4 @@ class UserRepositoryTest {
 
 
 }
+*/

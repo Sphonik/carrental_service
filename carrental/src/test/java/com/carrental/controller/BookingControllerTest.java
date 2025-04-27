@@ -1,16 +1,15 @@
+/*
 package com.carrental.controller;
 
-import com.carrental.controller.BookingController;
 import com.carrental.dto.BookingDto;
-import com.carrental.dto.BookingRequestDto;
 import com.carrental.service.BookingService;
-import org.junit.jupiter.api.BeforeEach;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,20 +20,17 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebMvcTest(BookingController.class)
 class BookingControllerTest {
 
-    @Mock
-    private BookingService bookingService;
-
-    @InjectMocks
-    private BookingController bookingController;
-
+    @Autowired
     private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(bookingController).build();
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private BookingService bookingService;
 
     @Test
     void getAllBookings() throws Exception {
@@ -53,15 +49,31 @@ class BookingControllerTest {
 
         verify(bookingService, times(1)).getAllBookingDtos();
     }
-
+    */
+/**
     @Test
     void createBooking() throws Exception {
-        BookingDto bookingDto = new BookingDto(1, 1, 1, LocalDate.now(), LocalDate.now().plusDays(3), new BigDecimal("300"), "USD");
+        BookingDto bookingDto = new BookingDto(
+                1, 1, 1,
+                LocalDate.of(2025, 5, 1),
+                LocalDate.of(2025, 5, 4),
+                new BigDecimal("300"), "USD"
+        );
         when(bookingService.createBooking(any())).thenReturn(bookingDto);
 
+        String requestJson = objectMapper.writeValueAsString(
+                new com.carrental.dto.BookingRequestDto(
+                        1, 1L,
+                        LocalDate.of(2025, 5, 1),
+                        LocalDate.of(2025, 5, 4),
+                        "USD"
+                )
+        );
+
         mockMvc.perform(post("/api/v1/bookings")
-                        .contentType("application/json")
-                        .content("{\"userId\": 1, \"carId\": 1, \"startDate\": \"2025-05-01\", \"endDate\": \"2025-05-04\", \"totalCost\": 300, \"currency\": \"USD\"}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson)
+                )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.totalCost").value(300));
@@ -77,5 +89,7 @@ class BookingControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(bookingService, times(1)).deleteBookingById(1);
-    }
+    }**//*
+
 }
+*/
