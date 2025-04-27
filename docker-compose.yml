@@ -2,29 +2,51 @@ version: '3.8'
 
 services:
 
+  mongo:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - carrental-net
+
+  rabbitmq:
+    image: rabbitmq:management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - carrental-net
 
   backend:
     build:
-      context: ./carrental
+      context: ./carrental-backend
     ports:
       - "8080:8080"
     environment:
-      CURRENCY_CONVERTER_URL: http://currency-converter:5000/?wsdl
+      MONGO_DB_URL: mongodb://mongo:27017/carrental
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      CURRENCY_CONVERTER_GRPC_URL: currency-converter:50051
       CORS_ALLOWED_ORIGINS: http://localhost:3000
+    depends_on:
+      - mongo
+      - rabbitmq
+      - currency-converter
     networks:
       - carrental-net
 
   frontend:
     build:
       context: ./carrental-frontend
-    depends_on:
-      - backend
     ports:
       - "3000:3000"
     environment:
       API_BASE_URL: http://backend:8080/api/v1
-      AUTH_USERNAME: admin
-      AUTH_PASSWORD: master
+    depends_on:
+      - backend
     networks:
       - carrental-net
 
@@ -32,15 +54,12 @@ services:
     build:
       context: ./currency_converter
     ports:
-      - "5000:80"
-    environment:
-      AUTH_USERNAME: admin
-      AUTH_PASSWORD: master
+      - "50051:50051"
     networks:
       - carrental-net
 
 volumes:
-  pgdata:
+  mongodb_data:
 
 networks:
   carrental-net:
