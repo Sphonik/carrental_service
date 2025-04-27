@@ -46,57 +46,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    /** 409 – car already booked */
-    @ExceptionHandler(CarNotAvailableException.class)
-    public ResponseEntity<ErrorResponse> handleCarUnavailable(
-            CarNotAvailableException ex,
-            HttpServletRequest request) {
-
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
-    }
-
-    /** 400 – bad request / validation */
-    @ExceptionHandler({InvalidBookingRequestException.class, MethodArgumentNotValidException.class})
-    public ResponseEntity<ErrorResponse> handleBadRequest(
-            Exception ex,
-            HttpServletRequest request) {
-
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.badRequest().body(body);
-    }
-
-    /** 503 – currency‐service unavailable */
-    @ExceptionHandler(CurrencyConversionException.class)
-    public ResponseEntity<ErrorResponse> handleCurrencyError(
-            CurrencyConversionException ex,
-            HttpServletRequest request) {
-
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                HttpStatus.SERVICE_UNAVAILABLE.value(),
-                "Currency service unavailable",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
-    }
-
     /** 500 – fallback */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(
