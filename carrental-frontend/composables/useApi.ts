@@ -5,7 +5,7 @@ export function useApi() {
   const environment = process.env.NODE_ENV || 'development'
   const config = apiConfig[environment as keyof typeof apiConfig]
 
-  const getBaseUrl = () => config.baseUrl
+  const getCarBookingUrl = () => config.carBookingUrl
 
   const buildQueryParams = (params: Record<string, string | null | undefined>) => {
     const query = new URLSearchParams()
@@ -32,28 +32,27 @@ export function useApi() {
     cars: {
       list: (filters?: { from?: string; to?: string; currency?: string }) => {
         const queryParams = buildQueryParams(filters || {})
-        return `${getBaseUrl()}/cars/available${queryParams ? `?${queryParams}` : ''}`
+        return `${getCarBookingUrl()}/cars/available${queryParams ? `?${queryParams}` : ''}`
       },
-      getById: (id: string) => `${getBaseUrl()}/cars/${id}`,
-      book: (id: string) => `${getBaseUrl()}/bookings`
+      getById: (id: string) => `${getCarBookingUrl()}/cars/${id}`,
+      book: (id: string) => `${getCarBookingUrl()}/bookings`
     },
     bookings: {
       // Bookings für den aktuellen Benutzer abrufen
-      list: () => `${getBaseUrl()}/bookings/user/${useAuthStore().user?.userId}`,
-      getById: (id: string) => `${getBaseUrl()}/bookings/${id}`,
-      cancel: (id: string) => `${getBaseUrl()}/bookings/${id}`
+      list: () => `${getCarBookingUrl()}/bookings/user/${useAuthStore().user?.userId}`,
+      getById: (id: string) => `${getCarBookingUrl()}/bookings/${id}`,
+      cancel: (id: string) => `${getCarBookingUrl()}/bookings/${id}`
     },
     auth: {
-      login: () => `${getBaseUrl()}/auth/login`,
-      register: () => `${getBaseUrl()}/auth/register`,
-      logout: () => `${getBaseUrl()}/auth/logout`,
-      me: () => `${getBaseUrl()}/auth/me`
+      login: () => `${getCarBookingUrl()}/auth/login`,
+      register: () => `${getCarBookingUrl()}/auth/register`,
+      logout: () => `${getCarBookingUrl()}/auth/logout`,
+      me: () => `${getCarBookingUrl()}/auth/me`
     }
   }
 
   return {
     endpoints,
-    getBaseUrl,
     getAuthHeaders
   }
 }
