@@ -18,12 +18,18 @@ import javax.annotation.PreDestroy;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * gRPC-Client für den Currency-Converter-Service.<br>
- * • Authentifizierung via Basic-Auth-Header<br>
- * • Deadline wird **pro Aufruf** gesetzt – kein „abgelaufener“ Stub mehr
+ * gRPC client for the Currency-Converter micro-service.
+ *
+ * <ul>
+ *   <li>Basic-Auth via metadata header</li>
+ *   <li>Deadline is applied <i>per request</i> – avoids stale stub deadlines</li>
+ *   <li>Null / blank argument validation → domain-specific exception</li>
+ *   <li>Single shared channel; clean shutdown via {@code @PreDestroy}</li>
+ * </ul>
  */
 @Component
 public class CurrencyConverterClient {
@@ -42,14 +48,14 @@ public class CurrencyConverterClient {
             @Value("${currency.grpc.password}") String pwd,
             @Value("${currency.grpc.timeout-ms:5000}") long timeoutMs) {
 
-        /* 1) Channel aufbauen */
+        /* 1 — Channel */
         this.channel = NettyChannelBuilder.forAddress(host, port)
-                .enableRetry()            // optional, aber empfehlenswert
+                .enableRetry()           // resilience
                 .maxRetryAttempts(3)
-                .usePlaintext()           // TODO: useTransportSecurity()
+                .usePlaintext()          // TODO: useTransportSecurity() once TLS is enabled
                 .build();
 
-        /* 2) Auth-Header vorbereiten */
+        /* 2 — Auth-header interceptor (once) */
         String token = Base64.getEncoder()
                 .encodeToString((user + ":" + pwd)
                         .getBytes(StandardCharsets.UTF_8));
@@ -60,7 +66,7 @@ public class CurrencyConverterClient {
         ClientInterceptor authInterceptor =
                 MetadataUtils.newAttachHeadersInterceptor(meta);
 
-        /* 3) Basis-Stub mit fest verdrahtetem Interceptor */
+        /* 3 — Base stub (no deadline yet) */
         this.baseStub = CurrencyConverterGrpc
                 .newBlockingStub(ClientInterceptors.intercept(channel, authInterceptor));
 
@@ -68,11 +74,18 @@ public class CurrencyConverterClient {
     }
 
     /**
-     * Konvertiert einen USD-Betrag in die gewünschte Zielwährung.
+     * Converts a USD amount into the given ISO currency code.
      *
-     * @throws CurrencyConversionException bei Netzwerk- oder Serverfehlern
+     * @param amountUsd  amount in USD (must not be {@code null})
+     * @param toCurrency ISO 4217 target currency (must not be {@code null} / blank)
+     * @return converted amount
+     * @throws CurrencyConversionException on network / validation / service errors
      */
     public BigDecimal convert(BigDecimal amountUsd, String toCurrency) {
+        // ——— argument validation ———
+        if (Objects.isNull(amountUsd) || Objects.isNull(toCurrency) || toCurrency.isBlank()) {
+            throw new CurrencyConversionException("Amount and target currency must be specified");
+        }
         if ("USD".equalsIgnoreCase(toCurrency)) {
             return amountUsd;
         }
@@ -82,7 +95,7 @@ public class CurrencyConverterClient {
                 .setToCurrency(toCurrency.toUpperCase())
                 .build();
 
-        /* 4) Deadline relativ pro Aufruf – verhindert „sofort abgelaufen“ */
+        /* fresh stub with per-call deadline */
         CurrencyConverterGrpc.CurrencyConverterBlockingStub stub =
                 baseStub.withDeadlineAfter(timeoutMs, TimeUnit.MILLISECONDS);
 
@@ -90,11 +103,11 @@ public class CurrencyConverterClient {
             ConversionResponse response = stub.convertCurrency(request);
             return BigDecimal.valueOf(response.getConvertedAmount());
         } catch (StatusRuntimeException e) {
-            throw new CurrencyConversionException("Currency conversion failed: " + e.getStatus(), e);
+            throw new CurrencyConversionException("gRPC call failed: " + e.getStatus(), e);
         }
     }
 
-    /** Channel sauber schließen (Spring ruft diese Methode beim Shutdown auf). */
+    /** Clean shutdown so integration tests don’t leak threads. */
     @PreDestroy
     public void shutdown() throws InterruptedException {
         channel.shutdownNow().awaitTermination(3, TimeUnit.SECONDS);
