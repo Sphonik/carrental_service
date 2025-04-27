@@ -11,7 +11,7 @@ import userservice.model.UserRole;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-27T14:23:54+0200",
+    date = "2025-04-27T16:35:19+0200",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 22.0.2 (Oracle Corporation)"
 )
 @Component
