@@ -30,7 +30,7 @@ public class CurrencyConverterClient {
             @Value("${currency.grpc.port}") int port,
             @Value("${currency.grpc.username}") String user,
             @Value("${currency.grpc.password}") String pwd,
-            @Value("${currency.grpc.timeout-ms:2000}") long timeoutMs) {
+            @Value("${currency.grpc.timeout-ms:5000}") long timeoutMs) {
 
         /* 1) Grund-Channel */
         this.channel = NettyChannelBuilder.forAddress(host, port)
@@ -58,8 +58,8 @@ public class CurrencyConverterClient {
             return amountUsd;
         }
         ConversionRequest req = ConversionRequest.newBuilder()
-                .setAmount(amountUsd.doubleValue())
-                .setToCurrency(toCurrency.toUpperCase())
+                .setAmount(amountUsd != null ? amountUsd.doubleValue() : 0.0)
+                .setToCurrency(toCurrency != null ? toCurrency.toUpperCase() : "USD")
                 .build();
         try {
             ConversionResponse rsp = stub.convertCurrency(req);

@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
                 "currency.grpc.port=50051",
                 "currency.grpc.username=admin",
                 "currency.grpc.password=master",
-                "currency.grpc.timeout-ms=2000"
+                "currency.grpc.timeout-ms=5000"
         }
 )
 public class CurrencyConverterClientIT {
