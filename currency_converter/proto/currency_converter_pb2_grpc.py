@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from proto import currency_converter_pb2 as proto_dot_currency__converter__pb2
+import proto.currency_converter_pb2 as currency__converter__pb2
 
 
 class CurrencyConverterStub(object):
@@ -17,8 +17,8 @@ class CurrencyConverterStub(object):
         """
         self.ConvertCurrency = channel.unary_unary(
                 '/currencyconverter.CurrencyConverter/ConvertCurrency',
-                request_serializer=proto_dot_currency__converter__pb2.ConversionRequest.SerializeToString,
-                response_deserializer=proto_dot_currency__converter__pb2.ConversionResponse.FromString,
+                request_serializer=currency__converter__pb2.ConversionRequest.SerializeToString,
+                response_deserializer=currency__converter__pb2.ConversionResponse.FromString,
                 )
 
 
@@ -38,8 +38,8 @@ def add_CurrencyConverterServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ConvertCurrency': grpc.unary_unary_rpc_method_handler(
                     servicer.ConvertCurrency,
-                    request_deserializer=proto_dot_currency__converter__pb2.ConversionRequest.FromString,
-                    response_serializer=proto_dot_currency__converter__pb2.ConversionResponse.SerializeToString,
+                    request_deserializer=currency__converter__pb2.ConversionRequest.FromString,
+                    response_serializer=currency__converter__pb2.ConversionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -64,7 +64,7 @@ class CurrencyConverter(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/currencyconverter.CurrencyConverter/ConvertCurrency',
-            proto_dot_currency__converter__pb2.ConversionRequest.SerializeToString,
-            proto_dot_currency__converter__pb2.ConversionResponse.FromString,
+            currency__converter__pb2.ConversionRequest.SerializeToString,
+            currency__converter__pb2.ConversionResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
