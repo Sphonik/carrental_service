@@ -1,7 +1,6 @@
 carrental-frontend/.nuxt/
 carrental-frontend/node_modules/
-car-service/target
+car-booking-service/target
 user-service/target
-booking-service/target
 currency_converter/.env
 currency_converter/proto/__pycache__/
