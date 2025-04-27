@@ -1,56 +1,72 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="
-           http://maven.apache.org/POM/4.0.0
-           http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>carbookingservice</groupId>
     <artifactId>car-booking-service</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>Booking Service</name>
-    <description>Spring Boot Booking Microservice for Car Rental Service with Java 22</description>
+    <description>Spring Boot Booking Microservice for Car Rental (Java 22)</description>
+
 
     <properties>
         <java.version>22</java.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <grpc.version>1.62.2</grpc.version>
+        <protobuf.version>3.25.3</protobuf.version>
     </properties>
+
 
     <parent>
         <groupId>carrental</groupId>
         <artifactId>carrental-backend</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath> <!-- Adjust if needed -->
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
+
     <dependencies>
-        <!-- Web & REST -->
+        <!-- Spring Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- SOAP support -->
+        <!-- gRPC runtime -->
         <dependency>
-            <groupId>org.springframework.ws</groupId>
-            <artifactId>spring-ws-core</artifactId>
-            <version>4.0.3</version>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>1.62.2</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-            <version>3.0.1</version>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>1.62.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>1.62.2</version>
         </dependency>
 
-        <!-- Security (Basic Auth) -->
+
+        <!-- Optional: null-safety / error-prone annotations -->
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <version>2.25.0</version>
+        </dependency>
+
+        <!-- Spring Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
-
 
         <!-- Validation -->
         <dependency>
@@ -71,17 +87,23 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- MongoDB (if you still need it) -->
+        <!-- MongoDB (optional, if still used) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
-        <!-- Azure Cosmos DB -->
+        <!-- Azure Cosmos DB (if required) -->
         <dependency>
             <groupId>com.azure.spring</groupId>
             <artifactId>spring-cloud-azure-starter-data-cosmos</artifactId>
             <version>5.22.0</version>
+        </dependency>
+
+        <!-- RabbitMQ messaging -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -90,8 +112,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- XMLUnit (for SOAP tests) -->
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
@@ -121,16 +141,61 @@
         </dependency>
     </dependencies>
 
+
     <build>
         <plugins>
-            <!-- Java compiler & MapStruct -->
+
+            <!-- Detect host OS for protobuf classifier -->
+            <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <executions>
+                    <execution>
+                        <goals><goal>detect</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Protobuf & gRPC code generation -->
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+
+                <configuration>
+                    <!-- protoc compiler -->
+                    <protocArtifact>
+                        com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+                    </protocArtifact>
+
+                    <!-- gRPC Java plugin -->
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>
+                        io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+                    </pluginArtifact>
+
+
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Java compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>22</source>
-                    <target>22</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -138,11 +203,10 @@
                             <version>${mapstruct.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
 
-            <!-- Spring Boot -->
+            <!-- Spring Boot re-package -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -150,6 +214,8 @@
                     <mainClass>carbookingservice.CarBookingServiceApplication</mainClass>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
+
 </project>

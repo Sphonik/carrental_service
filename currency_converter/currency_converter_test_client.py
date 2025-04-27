@@ -12,8 +12,8 @@ load_dotenv()
 
 def run():
     # Authentifizierungsdaten
-    username = os.getenv('AUTH_USERNAME')
-    password = os.getenv('AUTH_PASSWORD')
+    username = 'admin'
+    password = 'master'
     
     # Erstelle Basic Auth-Token
     import base64

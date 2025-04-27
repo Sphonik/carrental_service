@@ -32,25 +32,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- SOAP support -->
-        <dependency>
-            <groupId>org.springframework.ws</groupId>
-            <artifactId>spring-ws-core</artifactId>
-            <version>4.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-            <version>3.0.1</version>
-        </dependency>
 
         <!-- Security (Basic Auth) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
-
 
         <!-- Validation -->
         <dependency>
@@ -138,7 +125,7 @@
                             <version>${mapstruct.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                    <compilerArgs>--enable-preview</compilerArgs>
+
                 </configuration>
             </plugin>
 

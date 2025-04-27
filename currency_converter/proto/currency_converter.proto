@@ -10,11 +10,11 @@ service CurrencyConverter {
 
 // Request message with amount and target currency
 message ConversionRequest {
-  float amount = 1;
+  double amount = 1;
   string to_currency = 2;
 }
 
 // Response with the converted amount
 message ConversionResponse {
-  float converted_amount = 1;
+  double converted_amount = 1;
 }

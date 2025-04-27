@@ -1,8 +1,10 @@
 export const apiConfig = {
   development: {
-    baseUrl: 'http://localhost:8080/api/v1'
+    carBookingUrl: 'http://localhost:8100/api/v1',
+    userUrl: 'http://localhost:8090/api/v1'
   },
   production: {
-    baseUrl: 'https://your-production-api.com/api/v1'
+    carBookingUrl: 'https://your-carBookingUrl-api.com/api/v1',
+    userUrl: 'https://your-user-api.com/api/v1'
   }
 }

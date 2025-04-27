@@ -1,0 +1,18 @@
+syntax = "proto3";
+package currencyconverter;
+
+option java_package = "currencyconverter";
+option java_multiple_files = true;
+
+service CurrencyConverter {
+  rpc ConvertCurrency (ConversionRequest) returns (ConversionResponse) {}
+}
+
+message ConversionRequest {
+  double amount = 1;          // ← changed to double
+  string to_currency = 2;
+}
+
+message ConversionResponse {
+  double converted_amount = 1;
+}

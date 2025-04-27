@@ -4,3 +4,5 @@ car-booking-service/target
 user-service/target
 currency_converter/.env
 currency_converter/proto/__pycache__/
+carrental-backend/car-booking-service/target/
+carrental-backend/user-service/target/

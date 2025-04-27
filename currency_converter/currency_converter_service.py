@@ -89,6 +89,7 @@ class CurrencyConverterServicer(currency_converter_pb2_grpc.CurrencyConverterSer
         :param context: gRPC Context
         :returns: ConversionResponse with the converted amount
         """
+        logging.info("Received conversion request: %s", request)
         logging.info("Conversion requested: %.2f USD to %s", request.amount, request.to_currency)
 
         if request.amount < 0:
@@ -162,8 +163,8 @@ class AuthInterceptor(grpc.ServerInterceptor):
 
 def serve():
     """Starts the gRPC server with authentication"""
-    username = os.getenv('AUTH_USERNAME')
-    password = os.getenv('AUTH_PASSWORD')
+    username = os.getenv('AUTH_USERNAME', 'admin')
+    password = os.getenv('AUTH_PASSWORD', 'master')
     
     # Create an interceptor for authentication
     auth_interceptor = AuthInterceptor(username, password)
