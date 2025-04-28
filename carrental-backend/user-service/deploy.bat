@@ -6,9 +6,9 @@ setlocal EnableDelayedExpansion
 set ACR_NAME=carrental
 set ACR_USERNAME=carrental
 set ACR_PASSWORD=PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj
-set CONTAINER_NAME=part2-currency-converter
+set CONTAINER_NAME=part2-user-service
 set RESOURCE_GROUP=se-carrental
-set DNS_NAME_LABEL=part2-currency-converter
+set DNS_NAME_LABEL=part2-user-service
 
 echo.
 echo [1/7] Starting deployment process...
@@ -86,8 +86,8 @@ call az container create ^
     --registry-username %ACR_USERNAME% ^
     --registry-password %ACR_PASSWORD% ^
     --dns-name-label %DNS_NAME_LABEL% ^
-    --ports 50051 ^
-    --environment-variables WEBSITES_PORT=50051 ^
+    --ports 8090 ^
+    --environment-variables WEBSITES_PORT=8090 ^
     --os-type Linux ^
     --cpu 1 ^
     --memory 1.5
@@ -104,7 +104,7 @@ timeout /t 10 /nobreak > nul
 
 echo.
 echo Deployment successful!
-echo URL: http://%DNS_NAME_LABEL%.germanywestcentral.azurecontainer.io:51500
+echo URL: http://%DNS_NAME_LABEL%.germanywestcentral.azurecontainer.io:8090
 
 echo.
 pause

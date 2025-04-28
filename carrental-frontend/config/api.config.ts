@@ -4,7 +4,7 @@ export const apiconfig = {
     userUrl: 'http://localhost:8090/api/v1',
   },
   production: {
-    carbookingurl: 'https://car-booking-service-app.azurewebsites.net/api/v1',
-    userUrl: 'https://users-service-app.azurewebsites.net/api/v1',
+    carbookingurl: 'http://part2-car-booking-service.germanywestcentral.azurecontainer.io:8100/api/v1',
+    userUrl: 'http://part2-user-service.germanywestcentral.azurecontainer.io:8090/api/v1',
   }
 };
