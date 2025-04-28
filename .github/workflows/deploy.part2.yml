@@ -27,9 +27,8 @@ jobs:
 
       - name: Build & Push Car Booking Service
         run: |
-          docker build -t $ACR_LOGIN_SERVER/car-booking-service:part2 \
-         --file ./carrental-backend/car-booking-service/Dockerfile \
-          ./carrental-backend
+          docker build -t $ACR_LOGIN_SERVER/car-booking-service:part2 ./carrental-backend/car-booking-service
+          docker push $ACR_LOGIN_SERVER/car-booking-service:part2
 
       - name: Build & Push User Service
         run: |
