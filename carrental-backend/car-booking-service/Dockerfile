@@ -2,11 +2,15 @@
 
 FROM openjdk:22-slim
 
+# Maven kur
+RUN apt-get update && apt-get install -y maven
+
+# Çalışma dizini
 WORKDIR /app
 
-# !!! Burada doğru JAR adını kullanıyoruz
-COPY target/car-booking-service-1.0.0.jar app.jar
+# Proje dosyalarını kopyala
+COPY . .
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 8100
 
-EXPOSE 8081
+CMD ["java", "-jar", "target/car-booking-service-1.0.0.jar"]
