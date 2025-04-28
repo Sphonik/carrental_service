@@ -4,7 +4,7 @@ export const apiconfig = {
     userUrl: 'http://localhost:8090/api/v1',
   },
   production: {
-    carbookingurl: 'https://carrental-backend-app.azurewebsites.net/api/v1',
-    userUrl: 'https://carrental-backend-app.azurewebsites.net/api/v1',
+    carbookingurl: 'https://car-booking-service-app.azurewebsites.net/api/v1',
+    userUrl: 'https://users-service-app.azurewebsites.net/api/v1',
   }
 };
