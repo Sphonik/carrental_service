@@ -1,17 +1,13 @@
-# Java 22 JDK kullan
-FROM eclipse-temurin:22-jdk
-
-# Maven kur
-RUN apt-get update && apt-get install -y maven
-
-# Çalışma dizini
+# Stage 1: build the User Service JAR
+FROM maven:3.8.8-eclipse-temurin-22 AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Proje dosyalarını kopyala
-COPY . .
-
-# 8090 portunu aç
+# Stage 2: runtime image
+FROM eclipse-temurin:22-jdk
+WORKDIR /app
+COPY --from=build /app/target/user-service-1.0.0.jar ./app.jar
 EXPOSE 8090
-
-# JAR'ı çalıştır
-CMD ["java", "-jar", "target/user-service-1.0.0.jar"]
+CMD ["java", "-jar", "app.jar"]

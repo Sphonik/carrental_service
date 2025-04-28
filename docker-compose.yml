@@ -24,11 +24,10 @@ services:
     build:
       context: ./carrental-backend/user-service
     ports:
-      - "8090:8090"   # DÜZELTİLDİ
+      - "8090:8090"
     environment:
-      SERVER_PORT: 8090   # DÜZELTİLDİ
+      SERVER_PORT: 8090
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/carrental
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
@@ -43,12 +42,10 @@ services:
     build:
       context: ./carrental-backend/car-booking-service
     ports:
-      - "8100:8100"   # DÜZELTİLDİ
+      - "8100:8100"
     environment:
-      SERVER_PORT: 8100   # DÜZELTİLDİ
-      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8100
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/carrental
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
@@ -64,17 +61,6 @@ services:
       context: ./currency_converter
     ports:
       - "50051:50051"
-    networks:
-      - carrental-net
-
-  frontend:
-    build:
-      context: ./carrental-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - car-booking-service
-      - user-service
     networks:
       - carrental-net
 
