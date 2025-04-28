@@ -1,10 +1,10 @@
-export const apiConfig = {
+export const apiconfig = {
   development: {
-    carBookingUrl: 'http://localhost:8100/api/v1',
-    userUrl: 'http://localhost:8090/api/v1'
+    carbookingurl: 'http://localhost:8100/api/v1',
+    userUrl: 'http://localhost:8090/api/v1',
   },
   production: {
-    carBookingUrl: 'https://your-carBookingUrl-api.com/api/v1',
-    userUrl: 'https://your-user-api.com/api/v1'
+    carbookingurl: 'https://carrental-backend-app.azurewebsites.net/api/v1',
+    userUrl: 'https://carrental-backend-app.azurewebsites.net/api/v1',
   }
-}
+};

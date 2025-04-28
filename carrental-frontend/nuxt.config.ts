@@ -1,4 +1,8 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import { apiconfig } from './config/api.config';
+
+// Ortamı algıla
+const env = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   ssr: false,
@@ -16,7 +20,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       googleMapsApiKey: 'AIzaSyBjQ70oYqgMlSWvF1eA31arh6-FdxaJloY',
-      apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8080/api/v1',
+      carbookingurl: apiconfig[env].carbookingurl,
+      userurl: apiconfig[env].userUrl,
     }
   }
-})
+});

@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import proto.currency_converter_pb2 as currency__converter__pb2
+import currency_converter_pb2 as currency__converter__pb2
 
 
 class CurrencyConverterStub(object):

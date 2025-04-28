@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import { useApi } from "./useApi";
 import { useAuthStore } from "~/stores/auth";
-import { apiConfig } from "~/config/api.config";
+import { apiconfig } from "~/config/api.config";
 
 interface User {
   id: number;
@@ -33,7 +33,7 @@ export function useAuth() {
   const authStore = useAuthStore();
   const environment = process.env.NODE_ENV || "development";
 
-  const config = apiConfig[environment as keyof typeof apiConfig];
+  const config = apiconfig[environment as keyof typeof apiconfig];
 
   const getUserUrl = () => config.userUrl;
 

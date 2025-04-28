@@ -8,10 +8,14 @@ from lxml import etree
 import os
 from dotenv import load_dotenv
 import time as time_lib
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'proto'))
 
 # Import the generated gRPC modules
 from proto import currency_converter_pb2
 from proto import currency_converter_pb2_grpc
+
+
 
 # Load environment variables
 load_dotenv()

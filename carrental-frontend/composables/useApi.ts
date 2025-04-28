@@ -1,11 +1,11 @@
-import { apiConfig } from '~/config/api.config'
+import { apiconfig } from '~/config/api.config'
 import { useAuthStore } from '~/stores/auth'
 
 export function useApi() {
   const environment = process.env.NODE_ENV || 'development'
-  const config = apiConfig[environment as keyof typeof apiConfig]
+  const config = apiconfig[environment as keyof typeof apiconfig]
 
-  const getCarBookingUrl = () => config.carBookingUrl
+  const getCarBookingUrl = () => config.carbookingurl
 
   const buildQueryParams = (params: Record<string, string | null | undefined>) => {
     const query = new URLSearchParams()

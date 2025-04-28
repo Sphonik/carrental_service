@@ -1,10 +1,9 @@
 version: '3.8'
 
 services:
-
   mongo:
     image: mongo:latest
-    restart: unless-stopped
+    container_name: mongo
     ports:
       - "27017:27017"
     volumes:
@@ -14,39 +13,49 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
-    restart: unless-stopped
+    container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
       - carrental-net
 
-  backend:
+  user-service:
     build:
-      context: ./carrental-backend
+      context: ./carrental-backend/user-service
     ports:
-      - "8080:8080"
+      - "8090:8090"   # DÜZELTİLDİ
     environment:
-      MONGO_DB_URL: mongodb://mongo:27017/carrental
+      SERVER_PORT: 8090   # DÜZELTİLDİ
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/carrental
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
-      CURRENCY_CONVERTER_GRPC_URL: currency-converter:50051
-      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
       - mongo
       - rabbitmq
-      - currency-converter
     networks:
       - carrental-net
 
-  frontend:
+  car-booking-service:
     build:
-      context: ./carrental-frontend
+      context: ./carrental-backend/car-booking-service
     ports:
-      - "3000:3000"
+      - "8100:8100"   # DÜZELTİLDİ
     environment:
-      API_BASE_URL: http://backend:8080/api/v1
+      SERVER_PORT: 8100   # DÜZELTİLDİ
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/carrental
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
-      - backend
+      - mongo
+      - rabbitmq
     networks:
       - carrental-net
 
@@ -55,6 +64,17 @@ services:
       context: ./currency_converter
     ports:
       - "50051:50051"
+    networks:
+      - carrental-net
+
+  frontend:
+    build:
+      context: ./carrental-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - car-booking-service
+      - user-service
     networks:
       - carrental-net
 
