@@ -8,12 +8,11 @@ on:
 env:
   ACR_LOGIN_SERVER: carrental.azurecr.io
   ACR_USERNAME: carrental
-  ACR_PASSWORD: PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj
-  AZURE_ACCESS_TOKEN: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuYXp1cmUuY29tLyIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzZmYmU2N2I5LTg4ZDktNDBiNy1hZmM4LWM1NTgyOTFmY2U4NC8iLCJpYXQiOjE3NDU3NTgyNzAsIm5iZiI6MTc0NTc1ODI3MCwiZXhwIjoxNzQ1NzYyODY4LCJhY3IiOiIxIiwiYWdlR3JvdXAiOiI0IiwiYWlvIjoiQVhRQWkvOFpBQUFBTS9qVm5GUzF0aXJ1ZTJZeldwOUxnczVrbkhmWFJ6RWR5SGw2aFJpSGJhcDQ1aHFJZ2VHQm9OL3VPbTA5Y1BUbnRjTHFwTXEyRGhMVmtwWituVnJlSUdSRUUvRUE1YitkVFpiN1Y3UTVFUncxUEFGUzNHZGZGUzN2VldCZHhKTzVGeGxoVmpFVWg4MUtkWUMzUDVDTDVnPT0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiMDRiMDc3OTUtOGRkYi00NjFhLWJiZWUtMDJmOWUxYmY3YjQ2IiwiYXBwaWRhY3IiOiIwIiwiZmFtaWx5X25hbWUiOiJLb251ayIsImdpdmVuX25hbWUiOiJGYWRpbWUiLCJncm91cHMiOlsiM2E0YjA4Y2QtMjk0YS00MWMzLWFhMGMtMDE2NTQwYjYxZjY2IiwiZTk2NTU4ZTgtZmVkMy00MTU1LTgxMmYtMWI0NmJhZWY4YTE5Il0sImlkdHlwIjoidXNlciIsImlwYWRkciI6Ijg0LjExNS4yMzQuMzAiLCJuYW1lIjoiS29udWsgRmFkaW1lIiwib2lkIjoiNGE0NzYyZjItMzZhYi00OGExLTkxMGEtZmU4MDE4NjhkN2U3IiwicHVpZCI6IjEwMDMyMDAwNjEwQzdENTEiLCJyaCI6IjEuQVFrQXVXZS1iOW1JdDBDdnlNVllLUl9PaEVaSWYza0F1dGRQdWtQYXdmajJNQk1KQUdrSkFBLiIsInNjcCI6InVzZXJfaW1wZXJzb25hdGlvbiIsInNpZCI6IjAwNDA0NTM5LTZkZjktY2QzNi1jZGE3LWQ5MGNiZjhiMDczOSIsInN1YiI6Ilp1bWVQY3BhOV8xLVo1QjBjUUtuSWI2bmYwMnU5T0lBVFh6c19ON0Y0cm8iLCJ0aWQiOiI2ZmJlNjdiOS04OGQ5LTQwYjctYWZjOC1jNTU4MjkxZmNlODQiLCJ1bmlxdWVfbmFtZSI6ImZhZGltZS5rb251a0BzdHVkLmZoLWNhbXB1c3dpZW4uYWMuYXQiLCJ1cG4iOiJmYWRpbWUua29udWtAc3R1ZC5maC1jYW1wdXN3aWVuLmFjLmF0IiwidXRpIjoibmpYUlJqOGZDRUNsUGZBVFpnY1pBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiYjc5ZmJmNGQtM2VmOS00Njg5LTgxNDMtNzZiMTk0ZTg1NTA5Il0sInhtc19pZHJlbCI6IjIyIDEiLCJ4bXNfdGNkdCI6MTM2MTQxMTA2Mn0.LhNisKZmVpz_Dd7d8q35_ITX-GVKZL8el5qiKtuiQTPsBJWUz1Vf5fAuT9G_T3eX7glHqdw0AvqYqz2L0W8GtS3o_YXUGtJFES7ZOW3B0wYRG_0yN8cKF5xtQM-rE4fCPwk6ZA0bhkUFnzCFRDrLBJOWIaLbMBIDiT4wL81RSLvdE7oI3vjzAXrCAuEKnvrcK46Ei8sVyzwuEZH5YkULqjoCrmzBtxhi4br9y2drQlsKRO0Mn8EkwU4Zh_V7NVhpfRk9pJbOwHWbBS_S2dK7DMD_XUug3rrqqzNqbuGmlQalKL7IeZ6AMs1C7WmlV5OEJaRkd_xKRjckS53QI1d1pQ
-
-  RESTART_BACKEND: https://management.azure.com/subscriptions/1723e912-9a8d-4133-aae3-24663cc42f92/resourceGroups/se-carrental/providers/Microsoft.Web/sites/carrental-backend-part2/restart?api-version=2022-03-01
-  RESTART_FRONTEND: https://management.azure.com/subscriptions/1723e912-9a8d-4133-aae3-24663cc42f92/resourceGroups/se-carrental/providers/Microsoft.Web/sites/carrental-frontend-part2/restart?api-version=2022-03-01
-  RESTART_CONVERTER: https://management.azure.com/subscriptions/1723e912-9a8d-4133-aae3-24663cc42f92/resourceGroups/se-carrental/providers/Microsoft.Web/sites/currency-converter-part2/restart?api-version=2022-03-01
+  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+  AZURE_ACCESS_TOKEN: ${{ secrets.AZURE_ACCESS_TOKEN }}
+  RESTART_BACKEND: https://management.azure.com/subscriptions/xxx/resourceGroups/se-carrental/providers/Microsoft.Web/sites/car-booking-service-app/restart?api-version=2022-03-01
+  RESTART_FRONTEND: https://management.azure.com/subscriptions/xxx/resourceGroups/se-carrental/providers/Microsoft.Web/sites/carrental-frontend-part2/restart?api-version=2022-03-01
+  RESTART_CONVERTER: https://management.azure.com/subscriptions/xxx/resourceGroups/se-carrental/providers/Microsoft.Web/sites/currency-converter-part2/restart?api-version=2022-03-01
 
 jobs:
   build-and-deploy:
@@ -26,10 +25,15 @@ jobs:
       - name: Docker Login to ACR
         run: echo "$ACR_PASSWORD" | docker login $ACR_LOGIN_SERVER -u $ACR_USERNAME --password-stdin
 
-      - name: Build & Push Backend
+      - name: Build & Push Car Booking Service
         run: |
-          docker build -t $ACR_LOGIN_SERVER/carrental-backend:part2 ./carrental-backend
-          docker push $ACR_LOGIN_SERVER/carrental-backend:part2
+          docker build -t $ACR_LOGIN_SERVER/car-booking-service:part2 ./carrental-backend/car-booking-service
+          docker push $ACR_LOGIN_SERVER/car-booking-service:part2
+
+      - name: Build & Push User Service
+        run: |
+          docker build -t $ACR_LOGIN_SERVER/user-service:part2 ./carrental-backend/user-service
+          docker push $ACR_LOGIN_SERVER/user-service:part2
 
       - name: Build & Push Frontend
         run: |
@@ -41,7 +45,7 @@ jobs:
           docker build -t $ACR_LOGIN_SERVER/currency-converter:part2 ./currency_converter
           docker push $ACR_LOGIN_SERVER/currency-converter:part2
 
-      - name: Restart Backend Web App
+      - name: Restart Backend Web App (Car Booking)
         run: |
           curl -X POST "$RESTART_BACKEND" \
             -H "Authorization: Bearer $AZURE_ACCESS_TOKEN" \
