@@ -11,6 +11,6 @@ WORKDIR /app
 # Proje dosyalarını kopyala
 COPY . .
 
-EXPOSE 8100
+EXPOSE 8080
 
 CMD ["java", "-jar", "target/car-booking-service-1.0.0.jar"]
