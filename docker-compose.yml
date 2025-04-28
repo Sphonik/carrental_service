@@ -21,7 +21,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://se-carrental2.postgres.database.azure.com:5432/postgres?user=chef&password=FH_campus_wien&sslmode=require
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://se-carrental2.postgres.database.azure.com:5432/postgres?user=chef&password=FH_campus_wien&sslmode=require"
       SPRING_DATASOURCE_USERNAME: chef
       SPRING_DATASOURCE_PASSWORD: FH_campus_wien
       CORS_ALLOWED_ORIGINS: http://localhost:3000,https://carrental-frontend-app.azurewebsites.net
