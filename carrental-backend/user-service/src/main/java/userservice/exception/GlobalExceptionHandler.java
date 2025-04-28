@@ -3,16 +3,25 @@ package userservice.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
+/**
+ * Centralized exception handler that converts application exceptions
+ * into standardized JSON error responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** 404 – entity not found */
+    /**
+     * Handles EntityNotFoundException by returning a 404 Not Found response.
+     *
+     * @param ex      the thrown EntityNotFoundException
+     * @param request the incoming HTTP request
+     * @return ResponseEntity containing an ErrorResponse with status 404
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(
             EntityNotFoundException ex,
@@ -25,11 +34,16 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
-
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    /** 409 – username already exists */
+    /**
+     * Handles UsernameAlreadyExistsException by returning a 409 Conflict response.
+     *
+     * @param ex      the thrown UsernameAlreadyExistsException
+     * @param request the incoming HTTP request
+     * @return ResponseEntity containing an ErrorResponse with status 409
+     */
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUsernameConflict(
             UsernameAlreadyExistsException ex,
@@ -42,11 +56,16 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI()
         );
-
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    /** 500 – fallback */
+    /**
+     * Handles all uncaught exceptions by returning a 500 Internal Server Error response.
+     *
+     * @param ex      the thrown exception
+     * @param request the incoming HTTP request
+     * @return ResponseEntity containing an ErrorResponse with status 500
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(
             Exception ex,
@@ -59,7 +78,6 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred",
                 request.getRequestURI()
         );
-
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }

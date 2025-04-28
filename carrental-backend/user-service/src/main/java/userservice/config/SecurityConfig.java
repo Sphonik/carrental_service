@@ -25,15 +25,28 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Security configuration for the User service.
+ * <p>
+ * Defines user details service, authentication provider, CORS settings,
+ * stateless session management, and JSON-based authentication entry point.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserRepository users;
 
-    public SecurityConfig(UserRepository users) { this.users = users; }
+    public SecurityConfig(UserRepository users) {
+        this.users = users;
+    }
 
-    /* ---------- UserDetails ---------- */
+    /**
+     * Provides a UserDetailsService that loads user data from the repository
+     * and maps user roles to Spring Security authorities.
+     *
+     * @return configured UserDetailsService
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -46,27 +59,39 @@ public class SecurityConfig {
             );
         };
     }
-/*
+
+    /**
+     * PasswordEncoder bean that performs no encoding (plaintext).
+     * <p>
+     * Suitable only for development or testing.
+     *
+     * @return a NoOpPasswordEncoder instance
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
-*/
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();   // <-- Klartext !
+        return NoOpPasswordEncoder.getInstance();
     }
 
-
+    /**
+     * Authentication provider configured with the custom user details service
+     * and password encoder.
+     *
+     * @return configured DaoAuthenticationProvider
+     */
     @Bean
     public DaoAuthenticationProvider authProvider() {
-        DaoAuthenticationProvider p = new DaoAuthenticationProvider();
-        p.setUserDetailsService(userDetailsService());
-        p.setPasswordEncoder(passwordEncoder());
-        return p;
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
-    /* ---------- JSON-401 statt Browser-Popup ---------- */
+    /**
+     * Returns a JSON-formatted 401 Unauthorized response
+     * instead of triggering a browser authentication popup.
+     *
+     * @return AuthenticationEntryPoint producing JSON error details
+     */
     private AuthenticationEntryPoint restEntry() {
         return (req, res, ex) -> {
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -82,33 +107,54 @@ public class SecurityConfig {
         };
     }
 
-    /* ---------- CORS (nur wenn du von extern zugreifst) ---------- */
+    /**
+     * Configures CORS settings to allow specified origins, HTTP methods,
+     * headers, and credentials sharing.
+     *
+     * @return CorsConfigurationSource for handling CORS
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:8090","http://127.0.0.1:8090, http://localhost:3000, http://127.0.0.1:3000"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE"));
+        cfg.setAllowedOrigins(List.of(
+                "http://localhost:8090",
+                "http://127.0.0.1:8090",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
+        ));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);
         return src;
     }
 
-    /* ---------- Filter-Chain ---------- */
+    /**
+     * Configures the security filter chain to:
+     * <ul>
+     *   <li>Disable CSRF protection</li>
+     *   <li>Enable CORS</li>
+     *   <li>Enforce stateless session management</li>
+     *   <li>Allow customization of authorization rules and entry point</li>
+     * </ul>
+     *
+     * @param http the HttpSecurity builder
+     * @return configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/login").permitAll()
-//                        .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
-//                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-//                        .anyRequest().authenticated())
-//                .httpBasic(basic -> basic.authenticationEntryPoint(restEntry()));
+        // Additional authorization rules and HTTP Basic entry point
+        // can be enabled here if needed:
+        // .authorizeHttpRequests(...)
+        // .httpBasic(basic -> basic.authenticationEntryPoint(restEntry()));
+
         return http.build();
     }
 }
