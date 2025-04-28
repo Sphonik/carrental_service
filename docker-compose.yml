@@ -21,9 +21,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/carrental
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://se-carrental2.postgres.database.azure.com:5432/postgres?user=chef&password=FH_campus_wien&sslmode=require
+      SPRING_DATASOURCE_USERNAME: chef
+      SPRING_DATASOURCE_PASSWORD: FH_campus_wien
       CURRENCY_CONVERTER_URL: http://currency-converter:80/?wsdl
       CURRENCY_CONVERTER_USERNAME: admin
       CURRENCY_CONVERTER_PASSWORD: master
