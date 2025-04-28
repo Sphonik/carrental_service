@@ -23,7 +23,6 @@ services:
   user-service:
     build:
       context: ./carrental-backend/user-service
-      dockerfile: Dockerfile
     ports:
       - "8090:8090"
     environment:
@@ -42,7 +41,6 @@ services:
   car-booking-service:
     build:
       context: ./carrental-backend/car-booking-service
-      dockerfile: Dockerfile
     ports:
       - "8100:8100"
     environment:
@@ -61,7 +59,6 @@ services:
   currency-converter:
     build:
       context: ./currency_converter
-      dockerfile: Dockerfile
     ports:
       - "50051:50051"
     networks:
