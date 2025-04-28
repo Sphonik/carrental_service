@@ -17,6 +17,8 @@ export default defineNuxtConfig({
     public: {
       googleMapsApiKey: 'AIzaSyBjQ70oYqgMlSWvF1eA31arh6-FdxaJloY',
       apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8080/api/v1',
+      authUsername: process.env.AUTH_USERNAME || 'admin',
+      authPassword: process.env.AUTH_PASSWORD || 'master'
     }
   }
 })

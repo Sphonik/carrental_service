@@ -9,9 +9,4 @@
       <sourceFolder url="file://$MODULE_DIR$/carrental/src/test/java" isTestSource="true" />
     </content>
   </component>
-  <component name="FacetManager">
-    <facet type="Python" name="Python">
-      <configuration sdkName="Python 3.11 (se_car-rental) (3)" />
-    </facet>
-  </component>
 </module>

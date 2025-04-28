@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20
 
 WORKDIR /app
 
@@ -7,11 +7,9 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-# ✨ BURASI YENİ EKLENECEK: Nuxt için execute permission veriyoruz
-RUN chmod +x node_modules/.bin/nuxt
-
-RUN npm run build
+ENV NODE_ENV=development
+ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]

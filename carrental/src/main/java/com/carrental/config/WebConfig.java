@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
      * Example property key: <code>cors.allowed-origins</code>
      */
     @Value("${cors.allowed-origins}")
-    private String allowedOriginsStr;
+    private String allowedOrigins;
 
     /**
      * Configure CORS mappings for API endpoints.
@@ -36,10 +36,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(
-                        "http://localhost:3000",
-                        "https://carrental-frontend-app.azurewebsites.net"
-                )
+                .allowedOrigins(allowedOrigins)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
