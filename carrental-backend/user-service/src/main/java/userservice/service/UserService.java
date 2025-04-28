@@ -44,9 +44,11 @@ public class UserService {
     }
 
     public UserDto getUserDto(String id) {
+        System.out.println("Searching user repository for user: " + id);
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException("User", id));
+        System.out.println("User found: " + user);
         return userMapper.toDto(user);
     }
 

@@ -1,4 +1,4 @@
-package userservice.dto;
+package carbookingservice.dto;
 
 import java.io.Serializable;
 
