@@ -22,14 +22,16 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * gRPC client for the Currency-Converter micro-service.
- *
+ * gRPC client for the Currency Converter microservice.
+ * <p>
+ * Provides:
  * <ul>
- *   <li>Basic-Auth via metadata header</li>
- *   <li>Deadline is applied <i>per request</i> – avoids stale stub deadlines</li>
- *   <li>Null / blank argument validation → domain-specific exception</li>
- *   <li>Single shared channel; clean shutdown via {@code @PreDestroy}</li>
+ *   <li>Basic authentication via metadata header.</li>
+ *   <li>Per-request deadlines to avoid stale stub deadlines.</li>
+ *   <li>Argument validation with domain-specific exceptions.</li>
+ *   <li>Single shared channel with clean shutdown.</li>
  * </ul>
+ * </p>
  */
 @Component
 public class CurrencyConverterClient {
@@ -41,6 +43,16 @@ public class CurrencyConverterClient {
     private final CurrencyConverterGrpc.CurrencyConverterBlockingStub baseStub;
     private final long timeoutMs;
 
+    /**
+     * Constructs a CurrencyConverterClient with the specified gRPC connection parameters
+     * and basic-auth credentials.
+     *
+     * @param host      the gRPC server host
+     * @param port      the gRPC server port
+     * @param user      the username for Basic-Auth
+     * @param pwd       the password for Basic-Auth
+     * @param timeoutMs the per-call deadline in milliseconds
+     */
     public CurrencyConverterClient(
             @Value("${currency.grpc.host}") String host,
             @Value("${currency.grpc.port}") int port,
@@ -48,25 +60,23 @@ public class CurrencyConverterClient {
             @Value("${currency.grpc.password}") String pwd,
             @Value("${currency.grpc.timeout-ms:5000}") long timeoutMs) {
 
-        /* 1 — Channel */
+        // Initialize the channel with retry enabled
         this.channel = NettyChannelBuilder.forAddress(host, port)
-                .enableRetry()           // resilience
+                .enableRetry()
                 .maxRetryAttempts(3)
-                .usePlaintext()          // TODO: useTransportSecurity() once TLS is enabled
+                .usePlaintext()
                 .build();
 
-        /* 2 — Auth-header interceptor (once) */
+        // Prepare Basic-Auth header
         String token = Base64.getEncoder()
                 .encodeToString((user + ":" + pwd)
                         .getBytes(StandardCharsets.UTF_8));
-
         Metadata meta = new Metadata();
         meta.put(AUTH_HEADER, "Basic " + token);
-
         ClientInterceptor authInterceptor =
                 MetadataUtils.newAttachHeadersInterceptor(meta);
 
-        /* 3 — Base stub (no deadline yet) */
+        // Create base stub without deadline
         this.baseStub = CurrencyConverterGrpc
                 .newBlockingStub(ClientInterceptors.intercept(channel, authInterceptor));
 
@@ -74,15 +84,14 @@ public class CurrencyConverterClient {
     }
 
     /**
-     * Converts a USD amount into the given ISO currency code.
+     * Converts the given USD amount into the specified ISO currency.
      *
-     * @param amountUsd  amount in USD (must not be {@code null})
-     * @param toCurrency ISO 4217 target currency (must not be {@code null} / blank)
-     * @return converted amount
-     * @throws CurrencyConversionException on network / validation / service errors
+     * @param amountUsd  the amount in USD (must not be null)
+     * @param toCurrency the ISO 4217 target currency code (must not be null or blank)
+     * @return the converted amount in the target currency
+     * @throws CurrencyConversionException if validation fails or the gRPC call errors
      */
     public BigDecimal convert(BigDecimal amountUsd, String toCurrency) {
-        // ——— argument validation ———
         if (Objects.isNull(amountUsd) || Objects.isNull(toCurrency) || toCurrency.isBlank()) {
             throw new CurrencyConversionException("Amount and target currency must be specified");
         }
@@ -95,7 +104,6 @@ public class CurrencyConverterClient {
                 .setToCurrency(toCurrency.toUpperCase())
                 .build();
 
-        /* fresh stub with per-call deadline */
         CurrencyConverterGrpc.CurrencyConverterBlockingStub stub =
                 baseStub.withDeadlineAfter(timeoutMs, TimeUnit.MILLISECONDS);
 
@@ -107,7 +115,11 @@ public class CurrencyConverterClient {
         }
     }
 
-    /** Clean shutdown so integration tests don’t leak threads. */
+    /**
+     * Shuts down the gRPC channel to release resources and avoid thread leaks.
+     *
+     * @throws InterruptedException if the current thread is interrupted while awaiting termination
+     */
     @PreDestroy
     public void shutdown() throws InterruptedException {
         channel.shutdownNow().awaitTermination(3, TimeUnit.SECONDS);

@@ -1,7 +1,5 @@
-// src/main/java/com/carrental/config/DataSeeder.java
 package carbookingservice.config;
 
-import carbookingservice.model.*;
 import carbookingservice.model.Car;
 import carbookingservice.model.FuelType;
 import carbookingservice.repository.BookingRepository;
@@ -14,6 +12,10 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Component that initializes demo data for cars (and bookings in future)
+ * when the application starts, if the repositories are empty.
+ */
 @Component
 public class DataSeeder implements CommandLineRunner {
 
@@ -22,19 +24,38 @@ public class DataSeeder implements CommandLineRunner {
     private final CarRepository carRepo;
     private final BookingRepository bookingRepo;
 
+    /**
+     * Creates a new DataSeeder with the required repositories.
+     *
+     * @param carRepo     repository for storing and retrieving Car entities
+     * @param bookingRepo repository for storing and retrieving Booking entities
+     */
     public DataSeeder(CarRepository carRepo,
                       BookingRepository bookingRepo) {
         this.carRepo     = carRepo;
         this.bookingRepo = bookingRepo;
     }
 
+    /**
+     * Entry point that runs after the Spring Boot application context is loaded.
+     * <p>
+     * Seeds car data only if no cars are present.
+     *
+     * @param args runtime arguments (ignored)
+     */
     @Override
     public void run(String... args) {
-        if (carRepo.count() == 0)     seedCars();
+        if (carRepo.count() == 0) {
+            seedCars();
+        }
     }
 
-    /* ---------- Seeder-Hilfen ---------- */
-
+    /**
+     * Inserts a predefined set of demo cars into the database.
+     * <p>
+     * Each car includes make, model, year, color, fuel type, availability,
+     * base price per day in USD, and location.
+     */
     private void seedCars() {
         List<Car> cars = List.of(
                 new Car("Tesla",   "Model 3", 2022, "white", FuelType.ELECTRIC, true,
@@ -51,26 +72,4 @@ public class DataSeeder implements CommandLineRunner {
         carRepo.saveAll(cars);
         LOG.info("🚗  {} demo cars inserted", cars.size());
     }
-
-//    TODO: update this using User microservice
-//    private void seedBookings() {
-//        User alice = userRepo.findByUsername("alice")
-//                .orElseThrow(() ->
-//                        new IllegalStateException("User seeding failed"));
-//
-//        Car tesla  = carRepo.findByMakeAndModel("Tesla", "Model 3")
-//                .orElseThrow(() ->
-//                        new IllegalStateException("Car seeding failed"));
-//
-//        Booking b = new Booking(
-//                alice.getId(),
-//                tesla.getId(),
-//                LocalDate.now().plusDays(1),
-//                LocalDate.now().plusDays(3),
-//                new BigDecimal("209.70"),
-//                "USD"
-//        );
-//        bookingRepo.save(b);
-//        LOG.info("📑  1 demo booking inserted");
-//    }
 }

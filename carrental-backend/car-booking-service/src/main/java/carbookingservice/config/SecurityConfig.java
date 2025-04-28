@@ -17,18 +17,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Configures application security, including CORS settings,
+ * stateless session management, and a JSON-based authentication entry point.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
-/*
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
-*/
-
-    /* ---------- JSON-401 statt Browser-Popup ---------- */
+    /**
+     * Entry point that returns a JSON-formatted 401 Unauthorized response
+     * instead of triggering a basic-auth browser popup.
+     *
+     * @return an AuthenticationEntryPoint producing JSON error details
+     */
     private AuthenticationEntryPoint restEntry() {
         return (req, res, ex) -> {
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -44,33 +46,52 @@ public class SecurityConfig {
         };
     }
 
-    /* ---------- CORS (nur wenn du von extern zugreifst) ---------- */
+    /**
+     * Defines CORS configuration allowing cross-origin requests from
+     * specified local development origins and permitting common HTTP methods.
+     *
+     * @return the CorsConfigurationSource for the application
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:8080","http://127.0.0.1:8080, http://localhost:3000, http://127.0.0.1:3000"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE"));
+        cfg.setAllowedOrigins(List.of(
+                "http://localhost:8080",
+                "http://127.0.0.1:8080",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
+        ));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);
         return src;
     }
 
-    /* ---------- Filter-Chain ---------- */
+    /**
+     * Configures the security filter chain to:
+     * <ul>
+     *   <li>Disable CSRF protection.</li>
+     *   <li>Enable CORS with the defined configuration.</li>
+     *   <li>Enforce stateless session management.</li>
+     *   <li>(Authentication rules can be uncommented and customized as needed.)</li>
+     * </ul>
+     *
+     * @param http the HttpSecurity builder to configure
+     * @return the configured SecurityFilterChain
+     * @throws Exception in case of configuration errors
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/login").permitAll()
-//                        .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
-//                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-//                        .anyRequest().authenticated());
-//                .httpBasic(basic -> basic.authenticationEntryPoint(restEntry()));
+        // Further request authorization rules and authentication entry point
+        // can be enabled here when integrating user authentication.
+
         return http.build();
     }
 }
