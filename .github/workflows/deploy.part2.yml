@@ -6,10 +6,10 @@ on:
       - Part-2
 
 env:
+
   ACR_LOGIN_SERVER: carrental.azurecr.io
   ACR_USERNAME: carrental
-  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
-  AZURE_ACCESS_TOKEN: ${{ secrets.AZURE_ACCESS_TOKEN }}
+  ACR_PASSWORD: PcVqOtQSd7a9IcuOpJliUF0JbOEOzL98untd2VswXn+ACRCvg1tj
   RESTART_BACKEND: https://management.azure.com/subscriptions/xxx/resourceGroups/se-carrental/providers/Microsoft.Web/sites/car-booking-service-app/restart?api-version=2022-03-01
   RESTART_FRONTEND: https://management.azure.com/subscriptions/xxx/resourceGroups/se-carrental/providers/Microsoft.Web/sites/carrental-frontend-part2/restart?api-version=2022-03-01
   RESTART_CONVERTER: https://management.azure.com/subscriptions/xxx/resourceGroups/se-carrental/providers/Microsoft.Web/sites/currency-converter-part2/restart?api-version=2022-03-01
